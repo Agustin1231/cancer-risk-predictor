@@ -683,5 +683,47 @@ p { margin: 0 0 .75rem; color: var(--text-soft); }
   border: 2px dashed var(--border); border-radius: 10px;
 }
 
+/* ========== Panorama (Dashboard) ========== */
+.fuente-chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--bg-app); color: var(--muted);
+  padding: .35rem .75rem; border-radius: 999px;
+  font-size: .75rem;
+}
+.kpis {
+  display: grid; gap: .85rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+}
+.kpi {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem 1.25rem;
+  display: flex; flex-direction: column; gap: .15rem;
+}
+.kpi-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-value { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; line-height: 1.1; }
+.kpi-sub { font-size: .8rem; color: var(--muted); }
+
+.chart-card { padding: 1.25rem 1.25rem 1rem; }
+.chart-head { margin-bottom: .75rem; }
+.chart-head h3 { margin: 0 0 .15rem; font-family: 'Fraunces', serif; font-style: italic; }
+.chart-head p { margin: 0; font-size: .85rem; }
+
+.two-col { display: grid; gap: 1.25rem; grid-template-columns: 1fr; }
+@media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+.insight-card { background: linear-gradient(135deg, var(--primary-soft), #fff); border-color: var(--primary-glow); }
+.insight-card h3 { font-family: 'Fraunces', serif; font-style: italic; color: var(--primary-dark); margin-top: 0; }
+.insights { padding-left: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: .6rem; }
+.insights li { color: var(--text); font-size: .92rem; }
+.insights strong { color: var(--primary-dark); }
+
+@media (max-width: 520px) {
+  .kpi-value { font-size: 1.5rem; }
+  .kpi { padding: .85rem 1rem; }
+  .chart-card { padding: 1rem .75rem .75rem; }
+  .chart-head h3 { font-size: 1rem; }
+  .chart-head p { font-size: .8rem; }
+}
+
 .pasos { padding-left: 1.25rem; display: flex; flex-direction: column; gap: .8rem; }
 .pasos li p { margin: .25rem 0 0; color: var(--muted); }
