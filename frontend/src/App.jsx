@@ -6,6 +6,7 @@ import Evaluacion from './pages/Evaluacion.jsx'
 import Autoexamen from './pages/Autoexamen.jsx'
 import PlanCuidado from './pages/PlanCuidado.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import Proyecto from './pages/Proyecto.jsx'
 import { Icon } from './components/Icon.jsx'
 
 const LINKS = [
@@ -14,6 +15,7 @@ const LINKS = [
   { to: '/autoexamen', label: 'Autoexamen', icon: 'hand' },
   { to: '/plan-cuidado', label: 'Plan semanal', icon: 'calendar' },
   { to: '/dashboard', label: 'Panorama', icon: 'chart' },
+  { to: '/proyecto', label: 'Proyecto', icon: 'info' },
 ]
 
 function RouteWrapper({ children }) {
@@ -94,6 +96,7 @@ export default function App() {
               <Route path="/autoexamen" element={<RouteWrapper><Autoexamen /></RouteWrapper>} />
               <Route path="/plan-cuidado" element={<RouteWrapper><PlanCuidado /></RouteWrapper>} />
               <Route path="/dashboard" element={<RouteWrapper><Dashboard /></RouteWrapper>} />
+              <Route path="/proyecto" element={<RouteWrapper><Proyecto /></RouteWrapper>} />
             </Routes>
           </AnimatePresence>
         </main>
