@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.schemas import FactoresRiesgo, RespuestaPrediccion
 from app.predictor import predecir_riesgo
+from app.kinesis_logger import log_prediction
 
 app = FastAPI(
     title="HealthAI Breast BDI",
@@ -29,4 +30,6 @@ def health():
 
 @app.post("/predict", response_model=RespuestaPrediccion)
 def predict(factores: FactoresRiesgo):
-    return predecir_riesgo(factores)
+    resultado = predecir_riesgo(factores)
+    log_prediction(factores.model_dump(), resultado.model_dump())
+    return resultado

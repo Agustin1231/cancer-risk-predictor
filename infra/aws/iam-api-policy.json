@@ -1,0 +1,26 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FirehosePut",
+      "Effect": "Allow",
+      "Action": [
+        "firehose:PutRecord",
+        "firehose:PutRecordBatch"
+      ],
+      "Resource": "arn:aws:firehose:us-east-1:*:deliverystream/healthai-stream"
+    },
+    {
+      "Sid": "S3ModelosLectura",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::healthai-breast-bdi-data",
+        "arn:aws:s3:::healthai-breast-bdi-data/models/*"
+      ]
+    }
+  ]
+}
