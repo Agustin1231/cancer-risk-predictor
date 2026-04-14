@@ -19,9 +19,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        # Vacio = usar /api (proxy nginx). Solo override en dev local.
-        VITE_API_URL: ${VITE_API_URL:-}
     container_name: healthai-frontend
     restart: unless-stopped
     expose:

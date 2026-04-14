@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-// En produccion el frontend habla con /api (proxy nginx -> backend)
-// En desarrollo local apunta a http://localhost:8000 si no se define VITE_API_URL
-const baseURL = import.meta.env.VITE_API_URL || '/api'
+// La app siempre habla con /api y nginx proxea al backend.
+// Para desarrollo local, corré el frontend con "npm run dev" y usá vite proxy
+// (o apuntá axios a localhost:8000 puntualmente).
+const baseURL = '/api'
 
 export const api = axios.create({ baseURL, timeout: 15000 })
 
