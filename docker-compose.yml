@@ -1,0 +1,36 @@
+# Compatible con Coolify (un servicio = una app)
+services:
+  backend:
+    build: ./backend
+    container_name: healthai-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - KINESIS_STREAM=${KINESIS_STREAM:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    container_name: healthai-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  jupyter:
+    # Solo para desarrollo/notebooks. NO desplegar en Coolify.
+    build: ./notebooks
+    container_name: healthai-jupyter
+    profiles: ["dev"]
+    ports:
+      - "8888:8888"
+    working_dir: /project/notebooks
+    volumes:
+      - .:/project
