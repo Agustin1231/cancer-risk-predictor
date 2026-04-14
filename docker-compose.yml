@@ -1,14 +1,18 @@
-# Compatible con Coolify (un servicio = una app)
+# Backend + frontend con reverse proxy nginx
+# El frontend expone el puerto 80 publicamente y proxea /api/* al backend.
+# Cloudflare apunta el subdominio a la IP de la EC2 -> puerto 80.
+
 services:
   backend:
     build: ./backend
     container_name: healthai-backend
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - KINESIS_STREAM=${KINESIS_STREAM:-}
+      - S3_BUCKET=${S3_BUCKET:-}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
 
@@ -16,16 +20,17 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        # Vacio = usar /api (proxy nginx). Solo override en dev local.
+        VITE_API_URL: ${VITE_API_URL:-}
     container_name: healthai-frontend
     restart: unless-stopped
     ports:
-      - "5173:80"
+      - "80:80"
     depends_on:
       - backend
 
   jupyter:
-    # Solo para desarrollo/notebooks. NO desplegar en Coolify.
+    # Solo desarrollo. NO desplegar.
     build: ./notebooks
     container_name: healthai-jupyter
     profiles: ["dev"]
