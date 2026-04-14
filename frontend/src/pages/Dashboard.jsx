@@ -3,12 +3,17 @@ export default function Dashboard() {
 
   return (
     <section className="card">
-      <h2>Dashboard epidemiológico</h2>
-      <p>Casos de cáncer de mama en Colombia por año, localidad, grupo de edad y régimen de salud (fuente: SIVIGILA / Datos Abiertos).</p>
+      <h2>Panorama en Colombia</h2>
+      <p>
+        Cómo se distribuyen los casos de cáncer de mama en el país: por año, localidad, grupo de edad y régimen de salud.
+        Los datos vienen de SIVIGILA y Datos Abiertos.
+      </p>
       {url ? (
         <iframe title="PowerBI" src={url} className="powerbi" allowFullScreen />
       ) : (
-        <div className="placeholder">El dashboard se publicará aquí cuando esté disponible en Power BI Service.</div>
+        <div className="placeholder">
+          Acá vivirá el dashboard cuando lo tengamos listo. Por ahora, tomate un momento para <strong>conocerte</strong> desde los otros módulos.
+        </div>
       )}
     </section>
   )
