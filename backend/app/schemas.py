@@ -2,7 +2,7 @@
 Esquemas Pydantic. Las opciones de cada campo siguen la codificación
 del BCSC Risk Factor Dataset (ver docs/modelo.md).
 """
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -19,8 +19,25 @@ class FactoresRiesgo(BaseModel):
     biophx: Literal[0, 1, 9]
 
 
+class FactorDetalle(BaseModel):
+    clave: str
+    etiqueta: str
+    impacto: Literal["protector", "neutro", "moderado", "alto"]
+    mensaje: str
+    tip: Optional[str] = None
+    modificable: bool = False
+
+
+class PlanTamizaje(BaseModel):
+    frecuencia: str
+    proxima_accion: str
+    detalle: str
+
+
 class RespuestaPrediccion(BaseModel):
     nivel_riesgo: Literal["Bajo", "Medio", "Alto"]
     probabilidad: float
     recomendaciones: List[str]
+    factores_detalle: List[FactorDetalle] = []
+    plan_tamizaje: Optional[PlanTamizaje] = None
     aviso: str
