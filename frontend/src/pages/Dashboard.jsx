@@ -8,6 +8,54 @@ import {
   FUENTE, RESUMEN, EVOLUCION, DEPARTAMENTOS, GRUPOS_EDAD, REGIMEN, ESTADIO_DX, SOBREVIDA,
 } from '../data/panorama.js'
 
+function descargarDatos(formato) {
+  const payload = {
+    fuente: FUENTE,
+    resumen: RESUMEN,
+    evolucion_anual: EVOLUCION,
+    departamentos: DEPARTAMENTOS,
+    grupos_edad: GRUPOS_EDAD,
+    regimen_salud: REGIMEN,
+    estadio_diagnostico: ESTADIO_DX,
+    sobrevida_5_anios: SOBREVIDA,
+  }
+  if (formato === 'json') {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    disparar(blob, 'panorama-cancer-mama-colombia.json')
+    return
+  }
+  // CSV: un solo archivo con secciones
+  const lineas = []
+  lineas.push('# Panorama cancer de mama en Colombia')
+  lineas.push(`# Fuentes: ${FUENTE.texto}`)
+  lineas.push(`# Actualizado: ${FUENTE.actualizado}`)
+  lineas.push('')
+  const bloque = (titulo, filas) => {
+    lineas.push(`## ${titulo}`)
+    if (!filas.length) return
+    lineas.push(Object.keys(filas[0]).join(','))
+    filas.forEach(r => lineas.push(Object.values(r).join(',')))
+    lineas.push('')
+  }
+  bloque('Resumen', [RESUMEN])
+  bloque('Evolucion anual', EVOLUCION)
+  bloque('Departamentos', DEPARTAMENTOS)
+  bloque('Grupos de edad', GRUPOS_EDAD)
+  bloque('Regimen de salud', REGIMEN)
+  bloque('Estadio al diagnostico', ESTADIO_DX)
+  bloque('Sobrevida 5 anios', SOBREVIDA)
+  const blob = new Blob([lineas.join('\n')], { type: 'text/csv;charset=utf-8' })
+  disparar(blob, 'panorama-cancer-mama-colombia.csv')
+}
+
+function disparar(blob, nombre) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = nombre
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 const C = {
   primary: '#c2185b',
   primaryLight: '#f8bbd0',
@@ -65,9 +113,19 @@ export default function Dashboard() {
           régimen de salud y momento del diagnóstico. La detección temprana es lo que más
           cambia el pronóstico.
         </p>
-        <div className="fuente-chip">
-          <Icon name="info" size={14} />
-          <span>Fuentes: {FUENTE.texto} · Actualizado {FUENTE.actualizado}</span>
+        <div className="fuente-bar">
+          <div className="fuente-chip">
+            <Icon name="info" size={14} />
+            <span>Fuentes: {FUENTE.texto} · Actualizado {FUENTE.actualizado}</span>
+          </div>
+          <div className="descarga-group">
+            <button className="btn btn-sm" onClick={() => descargarDatos('csv')}>
+              <Icon name="download" size={14} /> CSV
+            </button>
+            <button className="btn btn-sm" onClick={() => descargarDatos('json')}>
+              <Icon name="download" size={14} /> JSON
+            </button>
+          </div>
         </div>
       </motion.section>
 
