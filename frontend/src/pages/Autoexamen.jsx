@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { registrarAutoexamen, leerAutoexamen, diasDesde } from '../lib/storage.js'
 
 const PASOS = [
   {
@@ -175,6 +176,9 @@ function Timer() {
           </button>
           <button className="btn btn-ghost" onClick={() => { setSegs(300); setCorriendo(false) }}>
             Reiniciar
+          </button>
+          <button className="btn btn-ghost" onClick={() => registrarAutoexamen()}>
+            Ya lo hice
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { predecir } from '../api.js'
 import Resultado from '../components/Resultado.jsx'
 import { CAMPOS, VALORES_INICIALES } from '../components/opciones.js'
+import { guardarResultado } from '../lib/storage.js'
 
 const MENSAJES_CARGA = [
   'Analizando tu perfil con cuidado...',
@@ -43,6 +44,7 @@ export default function Evaluacion() {
     }, 1100)
     try {
       const res = await predecir(form)
+      guardarResultado(res)
       setTimeout(() => {
         setResultado(res)
         setCargando(false)

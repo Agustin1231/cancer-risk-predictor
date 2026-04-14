@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { leerHabitos, guardarHabitos } from '../lib/storage.js'
 
 const CALENDARIO = [
   {
@@ -54,31 +55,17 @@ const HABITOS = [
   { id: 'control', titulo: 'Agendar mi próximo control', detalle: 'Según tu edad: ginecológico o mamografía.' },
 ]
 
-const STORAGE_KEY = 'healthai.habitos.v1'
-
 export default function PlanCuidado() {
   const [hechos, setHechos] = useState({})
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        const hoy = new Date().toISOString().slice(0, 10)
-        // reset semanal (lunes)
-        const lunes = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10) })()
-        if (parsed.semana === lunes) setHechos(parsed.hechos || {})
-      }
-    } catch {}
+    setHechos(leerHabitos().hechos)
   }, [])
 
   const toggle = (id) => {
     const next = { ...hechos, [id]: !hechos[id] }
     setHechos(next)
-    const lunes = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10) })()
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ semana: lunes, hechos: next }))
-    } catch {}
+    guardarHabitos(next)
   }
 
   const total = HABITOS.length
