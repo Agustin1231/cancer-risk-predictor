@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual de Usuario · HealthAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --pink: #f472b6;
+      --pink-dim: #be185d;
+      --teal: #2dd4bf;
+      --teal-dim: #0d9488;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(244,114,182,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244,114,182,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      border: 1px solid var(--teal-dim);
+      background: rgba(45,212,191,0.08);
+      padding: 4px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--pink) 0%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Module grid */
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 24px;
+    }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .module-card:hover {
+      border-color: var(--pink-dim);
+      box-shadow: 0 0 24px rgba(244,114,182,0.08);
+    }
+
+    .card-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .module-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--teal);
+      background: rgba(45,212,191,0.1);
+      border: 1px solid rgba(45,212,191,0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .module-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .module-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .video-wrap {
+      background: #000;
+      position: relative;
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      max-height: 280px;
+      object-fit: cover;
+    }
+
+    .card-footer {
+      padding: 10px 20px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pink);
+      flex-shrink: 0;
+    }
+
+    .card-footer span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 64px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+
+    footer a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .modules { grid-template-columns: 1fr; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Manual de Usuario</div>
+    <h1>HealthAI · Cuidado Mamario</h1>
+    <p class="subtitle">Recorrido visual por los 6 módulos de la plataforma. Cada video muestra la navegación y funcionalidades principales.</p>
+  </header>
+
+  <div class="modules">
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">01</span>
+        <div>
+          <div class="module-title">Mi espacio</div>
+          <div class="module-desc">Vista principal — accesos rápidos a todos los módulos</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-01-inicio.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>Inicio · Panel de bienvenida · Accesos directos</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">02</span>
+        <div>
+          <div class="module-title">Mi riesgo</div>
+          <div class="module-desc">Cuestionario personalizado de evaluación de riesgo</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-02-evaluacion.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>Evaluación · 10 preguntas · Resultado personalizado</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">03</span>
+        <div>
+          <div class="module-title">Autoexamen</div>
+          <div class="module-desc">Guía paso a paso con temporizador integrado</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-03-autoexamen.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>Guía visual · Temporizador · 5 minutos al mes</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">04</span>
+        <div>
+          <div class="module-title">Plan semanal</div>
+          <div class="module-desc">Hábitos de cuidado con seguimiento semanal</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-04-plan.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>8 hábitos · Seguimiento local · Sin datos en servidor</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">05</span>
+        <div>
+          <div class="module-title">Panorama</div>
+          <div class="module-desc">Datos epidemiológicos del cáncer mamario en Colombia</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-05-dashboard.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>Estadísticas · Gráficos · Contexto nacional</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="card-header">
+        <span class="module-num">06</span>
+        <div>
+          <div class="module-title">Proyecto</div>
+          <div class="module-desc">Información sobre HealthAI y el equipo</div>
+        </div>
+      </div>
+      <div class="video-wrap">
+        <video controls preload="metadata" src="videos/module-06-proyecto.mp4#t=0.5"></video>
+      </div>
+      <div class="card-footer">
+        <div class="dot"></div>
+        <span>Acerca del proyecto · Tecnología · Equipo</span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p><a href="https://bigdata.agustinynatalia.site">← Volver a HealthAI</a></p>
+    <p style="margin-top:12px">HealthAI · Universidad San Buenaventura · Big Data 2026</p>
+  </footer>
+
+</div>
+</body>
+</html>
