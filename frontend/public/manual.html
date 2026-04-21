@@ -6,318 +6,386 @@
   <title>Manual de Usuario · HealthAI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface2: #21262d;
-      --border: #30363d;
-      --pink: #f472b6;
-      --pink-dim: #be185d;
-      --teal: #2dd4bf;
-      --teal-dim: #0d9488;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --radius: 12px;
+      --bg: #faf6f7;
+      --bg-app: #f4eef0;
+      --card: #ffffff;
+      --text: #2d1b2e;
+      --text-soft: #5a4a5c;
+      --muted: #8b7a8e;
+      --primary: #c2185b;
+      --primary-dark: #880e4f;
+      --primary-soft: #fce4ec;
+      --primary-glow: #f8bbd0;
+      --accent: #7b5ea7;
+      --border: #ede0e2;
+      --border-soft: #f5ecee;
+      --shadow-sm: 0 1px 2px rgba(45,27,46,.04);
+      --shadow: 0 4px 20px rgba(45,27,46,.06);
+      --radius: 14px;
+      --radius-lg: 20px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-app);
       color: var(--text);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Grid background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(244,114,182,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(244,114,182,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container {
-      max-width: 1100px;
+    .shell {
+      max-width: 1060px;
       margin: 0 auto;
-      padding: 48px 24px;
-      position: relative;
-      z-index: 1;
+      padding: 48px 24px 72px;
     }
 
-    /* Header */
-    header {
-      text-align: center;
-      margin-bottom: 56px;
+    /* ── Header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 48px;
     }
 
-    .badge {
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card);
+      color: var(--text-soft);
+      font-size: .85rem;
+      font-weight: 500;
+      text-decoration: none;
+      font-family: inherit;
+      transition: all .15s;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .back-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    .header-body { flex: 1; }
+
+    .header-badge {
       display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      background: var(--primary);
+      color: #fff;
+      padding: .3rem .9rem;
+      border-radius: 999px;
+      font-size: .72rem;
       font-weight: 600;
-      letter-spacing: 0.12em;
+      letter-spacing: .5px;
       text-transform: uppercase;
-      color: var(--teal);
-      border: 1px solid var(--teal-dim);
-      background: rgba(45,212,191,0.08);
-      padding: 4px 14px;
-      border-radius: 100px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--pink) 0%, var(--teal) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1.2;
       margin-bottom: 12px;
     }
 
-    .subtitle {
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 520px;
-      margin: 0 auto;
-      line-height: 1.6;
+    h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 10px;
     }
 
-    /* Module grid */
+    .header-sub {
+      color: var(--text-soft);
+      font-size: .97rem;
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    /* ── Grid ── */
     .modules {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+      gap: 28px;
     }
 
+    /* ── Card ── */
     .module-card {
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
     }
-
     .module-card:hover {
-      border-color: var(--pink-dim);
-      box-shadow: 0 0 24px rgba(244,114,182,0.08);
+      transform: translateY(-3px);
+      border-color: var(--primary-glow);
+      box-shadow: var(--shadow);
     }
 
-    .card-header {
-      padding: 16px 20px 12px;
+    .card-strip {
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .card-head {
+      padding: 18px 20px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid var(--border);
+      gap: 14px;
+      border-bottom: 1px solid var(--border-soft);
     }
 
-    .module-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--teal);
-      background: rgba(45,212,191,0.1);
-      border: 1px solid rgba(45,212,191,0.2);
-      padding: 2px 8px;
-      border-radius: 6px;
+    .mod-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      display: grid;
+      place-items: center;
       flex-shrink: 0;
     }
 
-    .module-title {
-      font-size: 0.95rem;
+    .mod-titles { flex: 1; min-width: 0; }
+    .mod-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
       font-weight: 600;
+      font-style: italic;
       color: var(--text);
+      line-height: 1.2;
     }
-
-    .module-desc {
-      font-size: 0.8rem;
+    .mod-tagline {
+      font-size: .8rem;
       color: var(--muted);
       margin-top: 2px;
     }
 
     .video-wrap {
-      background: #000;
+      background: var(--bg-app);
       position: relative;
     }
-
     video {
       width: 100%;
       display: block;
-      max-height: 280px;
+      max-height: 270px;
       object-fit: cover;
     }
 
-    .card-footer {
-      padding: 10px 20px;
-      background: var(--surface2);
+    .card-desc {
+      padding: 16px 20px 20px;
+      flex: 1;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--pink);
-      flex-shrink: 0;
+    .desc-text {
+      font-size: .9rem;
+      color: var(--text-soft);
+      line-height: 1.65;
     }
 
-    .card-footer span {
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
+    .desc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    /* Footer */
+    .tag {
+      display: inline-block;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      padding: .22rem .65rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+
     footer {
       margin-top: 64px;
       text-align: center;
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: .82rem;
       line-height: 1.8;
     }
-
     footer a {
-      color: var(--teal);
+      color: var(--primary);
       text-decoration: none;
+      font-weight: 500;
     }
-
     footer a:hover { text-decoration: underline; }
 
-    @media (max-width: 600px) {
+    @media (max-width: 620px) {
       .modules { grid-template-columns: 1fr; }
-      h1 { font-size: 1.8rem; }
+      .page-header { flex-direction: column; gap: 14px; }
+      h1 { font-size: 1.7rem; }
     }
   </style>
 </head>
 <body>
-<div class="container">
+<div class="shell">
 
-  <header>
-    <div class="badge">Manual de Usuario</div>
-    <h1>HealthAI · Cuidado Mamario</h1>
-    <p class="subtitle">Recorrido visual por los 6 módulos de la plataforma. Cada video muestra la navegación y funcionalidades principales.</p>
-  </header>
+  <div class="page-header">
+    <a class="back-btn" href="https://bigdata.agustinynatalia.site">← Volver a HealthAI</a>
+    <div class="header-body">
+      <div class="header-badge">Manual de Usuario</div>
+      <h1>HealthAI · Cuidado Mamario</h1>
+      <p class="header-sub">Recorrido visual por los 6 módulos de la plataforma. Cada video muestra la navegación y las funcionalidades principales del módulo.</p>
+    </div>
+  </div>
 
   <div class="modules">
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">01</span>
-        <div>
-          <div class="module-title">Mi espacio</div>
-          <div class="module-desc">Vista principal — accesos rápidos a todos los módulos</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">1</div>
+        <div class="mod-titles">
+          <div class="mod-title">Mi espacio</div>
+          <div class="mod-tagline">Vista principal · Panel de bienvenida</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-01-inicio.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>Inicio · Panel de bienvenida · Accesos directos</span>
+      <div class="card-desc">
+        <p class="desc-text">Es la pantalla de inicio de HealthAI. Desde aquí puedes acceder directamente a todos los módulos de la plataforma: evaluación de riesgo, autoexamen, plan semanal, datos epidemiológicos y más. También muestra un resumen rápido de tu actividad reciente.</p>
+        <div class="desc-tags">
+          <span class="tag">Inicio</span>
+          <span class="tag">Accesos directos</span>
+          <span class="tag">Resumen de actividad</span>
+        </div>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">02</span>
-        <div>
-          <div class="module-title">Mi riesgo</div>
-          <div class="module-desc">Cuestionario personalizado de evaluación de riesgo</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">2</div>
+        <div class="mod-titles">
+          <div class="mod-title">Mi riesgo</div>
+          <div class="mod-tagline">Evaluación personalizada · 10 preguntas</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-02-evaluacion.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>Evaluación · 10 preguntas · Resultado personalizado</span>
+      <div class="card-desc">
+        <p class="desc-text">Responde 10 preguntas sobre tu historial médico, antecedentes familiares y hábitos de vida. Al finalizar, la plataforma genera un resultado personalizado que indica tu nivel de riesgo y detalla los factores que lo influyen, con recomendaciones específicas para tu caso.</p>
+        <div class="desc-tags">
+          <span class="tag">Cuestionario</span>
+          <span class="tag">10 preguntas</span>
+          <span class="tag">Resultado personalizado</span>
+          <span class="tag">Factores de riesgo</span>
+        </div>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">03</span>
-        <div>
-          <div class="module-title">Autoexamen</div>
-          <div class="module-desc">Guía paso a paso con temporizador integrado</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">3</div>
+        <div class="mod-titles">
+          <div class="mod-title">Autoexamen</div>
+          <div class="mod-tagline">Guía paso a paso · Temporizador integrado</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-03-autoexamen.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>Guía visual · Temporizador · 5 minutos al mes</span>
+      <div class="card-desc">
+        <p class="desc-text">Aprende a realizar el autoexamen mamario correctamente con una guía visual paso a paso. Cada etapa incluye instrucciones claras e ilustraciones. El temporizador integrado te ayuda a dedicarle los 5 minutos recomendados al menos una vez al mes.</p>
+        <div class="desc-tags">
+          <span class="tag">Guía visual</span>
+          <span class="tag">Temporizador</span>
+          <span class="tag">Paso a paso</span>
+          <span class="tag">5 min al mes</span>
+        </div>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">04</span>
-        <div>
-          <div class="module-title">Plan semanal</div>
-          <div class="module-desc">Hábitos de cuidado con seguimiento semanal</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">4</div>
+        <div class="mod-titles">
+          <div class="mod-title">Plan semanal</div>
+          <div class="mod-tagline">Hábitos de cuidado · Seguimiento local</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-04-plan.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>8 hábitos · Seguimiento local · Sin datos en servidor</span>
+      <div class="card-desc">
+        <p class="desc-text">Registra y lleva el seguimiento de 8 hábitos de cuidado mamario a lo largo de la semana. Marca cada hábito como completado al finalizar el día. El progreso se guarda localmente en tu dispositivo: ningún dato personal se envía a ningún servidor.</p>
+        <div class="desc-tags">
+          <span class="tag">8 hábitos</span>
+          <span class="tag">Seguimiento semanal</span>
+          <span class="tag">Sin datos en servidor</span>
+          <span class="tag">Privacidad total</span>
+        </div>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">05</span>
-        <div>
-          <div class="module-title">Panorama</div>
-          <div class="module-desc">Datos epidemiológicos del cáncer mamario en Colombia</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">5</div>
+        <div class="mod-titles">
+          <div class="mod-title">Panorama</div>
+          <div class="mod-tagline">Datos epidemiológicos · Colombia</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-05-dashboard.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>Estadísticas · Gráficos · Contexto nacional</span>
+      <div class="card-desc">
+        <p class="desc-text">Explora datos reales sobre el cáncer de mama en Colombia: estadísticas de incidencia, mortalidad y distribución regional. Los gráficos interactivos te permiten contextualizar la situación nacional y entender la magnitud del problema en tu departamento.</p>
+        <div class="desc-tags">
+          <span class="tag">Estadísticas</span>
+          <span class="tag">Gráficos interactivos</span>
+          <span class="tag">Contexto nacional</span>
+          <span class="tag">Fuentes oficiales</span>
+        </div>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="card-header">
-        <span class="module-num">06</span>
-        <div>
-          <div class="module-title">Proyecto</div>
-          <div class="module-desc">Información sobre HealthAI y el equipo</div>
+      <div class="card-strip"></div>
+      <div class="card-head">
+        <div class="mod-num">6</div>
+        <div class="mod-titles">
+          <div class="mod-title">Proyecto</div>
+          <div class="mod-tagline">Acerca de HealthAI · Equipo · Tecnología</div>
         </div>
       </div>
       <div class="video-wrap">
         <video controls preload="metadata" src="videos/module-06-proyecto.mp4#t=0.5"></video>
       </div>
-      <div class="card-footer">
-        <div class="dot"></div>
-        <span>Acerca del proyecto · Tecnología · Equipo</span>
+      <div class="card-desc">
+        <p class="desc-text">Conoce la historia detrás de HealthAI: la motivación del proyecto, la metodología académica, la arquitectura técnica y el equipo de desarrollo. También encontrarás las fuentes de datos utilizadas y los objetivos del proyecto en el contexto de Big Data en salud.</p>
+        <div class="desc-tags">
+          <span class="tag">Acerca del proyecto</span>
+          <span class="tag">Tecnología</span>
+          <span class="tag">Equipo</span>
+          <span class="tag">Big Data 2026</span>
+        </div>
       </div>
     </div>
 
   </div>
 
   <footer>
-    <p><a href="https://bigdata.agustinynatalia.site">← Volver a HealthAI</a></p>
-    <p style="margin-top:12px">HealthAI · Universidad San Buenaventura · Big Data 2026</p>
+    <p>HealthAI · Universidad San Buenaventura · Big Data 2026</p>
   </footer>
 
 </div>
