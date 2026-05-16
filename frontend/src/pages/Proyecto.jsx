@@ -54,9 +54,13 @@ export default function Proyecto() {
           </div>
         </div>
         <div className="proj-actions no-print">
-          <button className="btn btn-primary" onClick={() => window.print()}>
-            <Icon name="download" size={16} /> Descargar PDF
-          </button>
+          <a
+            className="btn btn-primary"
+            href="/Informe_Tecnico_HealthAI_Breast_BDI.pdf"
+            download="Informe_Tecnico_HealthAI_Breast_BDI.pdf"
+          >
+            <Icon name="download" size={16} /> Descargar informe técnico (PDF)
+          </a>
           <a className="btn" href="https://github.com/Agustin1231/bigdata-sanbuenaventura" target="_blank" rel="noreferrer">
             <Icon name="info" size={16} /> Ver código en GitHub
           </a>

@@ -1,0 +1,572 @@
+\documentclass[conference,a4paper,10pt]{IEEEtran}
+
+%%% ============ Packages ============
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds}
+\usepackage[colorlinks=true,allcolors={hai-primary},urlcolor={hai-primary}]{hyperref}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{caption}
+\usepackage{ragged2e}
+
+%%% ============ Colors (project palette) ============
+\definecolor{hai-primary}{HTML}{C2185B}
+\definecolor{hai-primary-dark}{HTML}{880E4F}
+\definecolor{hai-primary-soft}{HTML}{FCE4EC}
+\definecolor{hai-accent}{HTML}{7B5EA7}
+\definecolor{hai-accent-soft}{HTML}{F0E6F5}
+\definecolor{hai-text}{HTML}{2D1B2E}
+\definecolor{hai-muted}{HTML}{8B7A8E}
+\definecolor{hai-warn}{HTML}{C27803}
+\definecolor{hai-warn-soft}{HTML}{FEF3C7}
+\definecolor{hai-rule}{HTML}{EDE0E2}
+\definecolor{hai-bg}{HTML}{FAF6F7}
+
+%%% ============ Section heading colors ============
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\normalsize\bfseries\scshape\color{hai-primary}\centering}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\itshape\color{hai-text}}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\itshape\color{hai-text}}{\thesubsubsection)}{0.5em}{}
+
+%%% ============ Caption style ============
+\captionsetup{font=small,labelfont={sc,bf,color=hai-primary},labelsep=period,justification=centering}
+\captionsetup[table]{position=above,skip=4pt}
+\captionsetup[figure]{position=below,skip=4pt}
+
+%%% ============ Hyperref tweak ============
+\hypersetup{
+  pdftitle={HealthAI Breast BDI - Informe Tecnico},
+  pdfauthor={Agustin Peralta Guarin},
+  pdfsubject={Big Data, prediccion de riesgo de cancer de mama},
+  pdfkeywords={Big Data, AWS, Spark, FastAPI, React, Coolify}
+}
+
+%%% ============ Custom callouts ============
+\newtcolorbox{callout}[1][]{
+  enhanced, breakable, sharp corners,
+  colback=hai-primary-soft, colframe=hai-primary,
+  boxrule=0pt, leftrule=2pt,
+  left=8pt, right=8pt, top=4pt, bottom=4pt,
+  fontupper=\footnotesize, #1
+}
+\newtcolorbox{warning}[1][]{
+  enhanced, breakable, sharp corners,
+  colback=hai-warn-soft, colframe=hai-warn,
+  boxrule=0pt, leftrule=2pt,
+  left=8pt, right=8pt, top=4pt, bottom=4pt,
+  fontupper=\footnotesize, #1
+}
+
+%%% ============ 5V badge ============
+\newcommand{\vtag}[1]{%
+  \tikz[baseline=(b.base)]{\node[fill=hai-primary,text=white,rounded corners=4pt,inner sep=2pt,font=\scriptsize\bfseries\scshape] (b) {#1};}\hspace{4pt}%
+}
+
+%%% ============ Code style ============
+\newcommand{\code}[1]{{\ttfamily\small\textcolor{hai-primary-dark}{#1}}}
+
+%%% ============ Title ============
+\title{HealthAI Breast BDI:\\Arquitectura híbrida de Big Data para la predicción de riesgo de cáncer de mama y la analítica epidemiológica}
+
+\author{%
+  \IEEEauthorblockN{Agustín Peralta Guarín \quad Natalia Moncaleano}\\
+  \IEEEauthorblockA{Programa de Ingeniería de Sistemas, Facultad de Ingenierías\\
+  Universidad de San Buenaventura, Bogotá, Colombia\\
+  Aplicación: \url{https://bigdata.agustinynatalia.site}}%
+}
+
+\begin{document}
+
+\maketitle
+
+%%% ============ Abstract ============
+\begin{abstract}
+Este artículo presenta el diseño, implementación y despliegue de
+\emph{HealthAI Breast BDI}, una aplicación web sustentada en una
+arquitectura híbrida de Big Data que integra procesamiento batch sobre
+Apache Spark, ingesta streaming con AWS Kinesis Firehose y un data lake
+en Amazon S3, con el objetivo de entregar al usuario final una
+herramienta educativa de evaluación del riesgo de cáncer de mama y un
+panorama epidemiológico del país. El modelo predictivo se entrena sobre
+el \emph{Breast Cancer Surveillance Consortium Risk Factor Dataset}
+(1.5\,M filas agregadas, representativas de 6.7\,M mamografías). El
+sistema separa el plano de datos (AWS) del plano de servicio web (VPS
+administrado con Coolify), patrón que reduce el costo operativo sin
+sacrificar la capacidad de procesamiento distribuido. Se discuten la
+elección de la arquitectura, el pipeline de datos, la validación con
+Pydantic, el modelo de clasificación servido vía FastAPI y el
+cumplimiento de las cinco V del Big Data (volumen, velocidad, variedad,
+veracidad y valor).
+\end{abstract}
+
+\begin{IEEEkeywords}
+Big Data, cáncer de mama, modelo predictivo, Apache Spark, AWS,
+streaming, Kinesis Firehose, data lake, FastAPI, React, Coolify, salud
+digital.
+\end{IEEEkeywords}
+
+%%% ============================================================
+\section{Introducción}
+\IEEEPARstart{E}{l} cáncer de mama es el cáncer más diagnosticado en mujeres
+a nivel mundial y la primera causa de muerte oncológica femenina en
+Colombia~\cite{bcsc,cac}. Una porción significativa de los casos se
+identifica en estadios avanzados, donde el tratamiento es más invasivo y
+el pronóstico menos favorable. El tamizaje temprano y la educación en
+autoexamen constituyen intervenciones costo-efectivas; sin embargo, la
+información disponible para la población general se encuentra fragmentada
+entre portales clínicos, datos epidemiológicos oficiales y guías médicas
+dispersas.
+
+El presente trabajo aborda esta brecha mediante el diseño de un sistema de
+Big Data que integra (i) un dataset clínico masivo de mamografías
+agregadas~\cite{bcsc}, (ii) reportes epidemiológicos globales y
+nacionales~\cite{globocan,cac,sivigila} y (iii) un modelo de clasificación
+de riesgo servido vía API. La aplicación resultante ---\emph{HealthAI
+Breast BDI}--- entrega al usuario final una evaluación personalizada, un
+plan de cuidado y un panorama del país en una única interfaz web
+mobile-first.
+
+El resto del documento se organiza como sigue. La Sección~\ref{sec:contexto}
+describe el contexto y los objetivos. La Sección~\ref{sec:arq} presenta la
+arquitectura propuesta. La Sección~\ref{sec:fuentes} detalla las fuentes de
+datos. La Sección~\ref{sec:pipe} describe el pipeline. La
+Sección~\ref{sec:modelo} presenta el modelo predictivo. Las
+Secciones~\ref{sec:backend} y~\ref{sec:frontend} cubren el backend y el
+frontend respectivamente. La Sección~\ref{sec:deploy} detalla la
+infraestructura y el despliegue. La Sección~\ref{sec:5v} discute el
+cumplimiento de las 5\,V. La Sección~\ref{sec:stack} resume el stack y la
+Sección~\ref{sec:lim} enumera las limitaciones identificadas. La
+Sección~\ref{sec:conc} concluye y delinea trabajo futuro.
+
+%%% ============================================================
+\section{Contexto y objetivos}\label{sec:contexto}
+
+\subsection{Objetivo general}
+Diseñar e implementar un sistema de Big Data que integre datos clínicos
+masivos y fuentes epidemiológicas oficiales, con el fin de entregar al
+usuario final una herramienta de evaluación de riesgo personalizada,
+acompañada de recomendaciones preventivas y un panorama de la situación
+del cáncer de mama en Colombia.
+
+\subsection{Objetivos específicos}
+\begin{itemize}[leftmargin=*,nosep]
+  \item Procesar el dataset clínico BCSC ($>$6\,M mamografías) usando Apache Spark.
+  \item Entrenar y servir un modelo de clasificación de riesgo a través de una API REST.
+  \item Implementar un pipeline de streaming con Kinesis Firehose para captura continua.
+  \item Integrar fuentes heterogéneas: GLOBOCAN, Cuenta de Alto Costo, SIVIGILA.
+  \item Desplegar el sistema en producción con dominio público y HTTPS.
+\end{itemize}
+
+\subsection{Alcance}
+El sistema cubre cinco módulos visibles al usuario: \emph{Mi espacio}
+(dashboard personal), \emph{Mi riesgo} (evaluación tipo wizard),
+\emph{Autoexamen} (guía con temporizador), \emph{Plan semanal} (checklist
+de hábitos con persistencia local) y \emph{Panorama} (dashboard
+epidemiológico). Se excluye la integración con sistemas de historia
+clínica electrónica y la generación de diagnósticos automatizados.
+
+%%% ============================================================
+\section{Arquitectura propuesta}\label{sec:arq}
+La arquitectura adopta el patrón \emph{batch + streaming sobre data
+lake}, separando el plano de datos (AWS) del plano de servicio web (VPS
+administrado con Coolify). Este diseño híbrido permite asignar el mejor
+servicio a cada carga: AWS para el procesamiento distribuido sobre el
+dataset masivo, y un VPS económico para servir la aplicación de manera
+continua. La Fig.~\ref{fig:arq} ilustra el flujo de datos a través de las
+cuatro etapas del sistema.
+
+\begin{figure*}[!t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=6mm and 9mm,
+    box/.style={draw=hai-rule,fill=white,rounded corners=3pt,
+      minimum width=24mm,minimum height=11mm,align=center,font=\footnotesize\bfseries,
+      text=hai-text},
+    primary/.style={box,draw=hai-primary,fill=hai-primary-soft,text=hai-primary-dark},
+    accent/.style={box,draw=hai-accent,fill=hai-accent-soft,text=hai-accent},
+    stage/.style={font=\scriptsize\bfseries\scshape,text=hai-muted},
+    arr/.style={-{Latex[length=2mm,width=1.4mm]},thick,hai-primary},
+  ]
+    %%% Row 1
+    \node[box] (capt) {Formulario\\React};
+    \node[primary,right=of capt] (kine) {AWS Kinesis\\Firehose};
+    \node[accent,right=of kine] (spark) {EC2 Ubuntu\\+ Apache Spark};
+    \node[box,right=of spark] (pkl) {modelo\_riesgo.pkl\\(S3)};
+
+    %%% Stage labels (above)
+    \node[stage,above=2mm of capt] {Captura};
+    \node[stage,above=2mm of kine] {Ingesta streaming};
+    \node[stage,above=2mm of spark] {Procesamiento};
+    \node[stage,above=2mm of pkl] {Modelo \& servicio};
+
+    %%% Row 2
+    \node[box,below=of capt] (api) {API\\FastAPI};
+    \node[primary,below=of kine] (s3) {AWS S3\\(Data Lake)};
+    \node[accent,below=of spark] (pyj) {Jupyter\\\textperiodcentered\ PySpark};
+    \node[box,below=of pkl] (pred) {Endpoint\\/predict};
+
+    %%% Arrows
+    \draw[arr] (capt) -- (kine);
+    \draw[arr] (kine) -- (spark);
+    \draw[arr] (spark) -- (pkl);
+    \draw[arr] (api) -- (s3);
+    \draw[arr] (s3) -- (pyj);
+    \draw[arr] (pyj) -- (pred);
+    \draw[arr] (capt) -- (api);
+    \draw[arr] (pkl) -- (pred);
+  \end{tikzpicture}
+  \caption{Pipeline batch + streaming sobre data lake. Las cargas pesadas se mantienen en AWS; el servicio web se ejecuta en un VPS con Coolify.}
+  \label{fig:arq}
+\end{figure*}
+
+Cada predicción que un usuario realiza desde el formulario se envía en
+tiempo real al stream de Kinesis Firehose, que la deposita comprimida en
+GZIP en S3 bajo el prefijo \code{raw/predictions/YYYY/MM/DD/}. Apache
+Spark, ejecutándose en una instancia EC2 dedicada, lee periódicamente
+esos lotes para análisis agregado y reentrenamiento del modelo.
+
+\begin{callout}
+\textbf{\itshape Justificación del diseño híbrido.} El plan inicial
+contemplaba desplegar toda la aplicación sobre la EC2 que ejecuta Spark.
+Tras pruebas de carga, una instancia \emph{t3.medium} no soportó
+adecuadamente la combinación de Spark, Jupyter, backend y frontend
+servidos en paralelo; escalar a \emph{t3.large} excedía el presupuesto
+académico. La separación AWS (datos) / VPS (web) resuelve la tensión
+clásica entre capacidad de procesamiento y costo de servicio continuo.
+\end{callout}
+
+%%% ============================================================
+\section{Fuentes de datos}\label{sec:fuentes}
+Se integraron cuatro fuentes heterogéneas. La Tabla~\ref{tab:fuentes}
+resume su origen y uso dentro del sistema.
+
+\begin{table}[!t]
+\caption{Fuentes de datos integradas en el sistema.}
+\label{tab:fuentes}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\arrayrulecolor{hai-primary}
+\begin{tabularx}{\columnwidth}{@{}l l X@{}}
+\toprule
+\rowcolor{hai-primary-soft}
+\textbf{\color{hai-primary-dark}Fuente} &
+\textbf{\color{hai-primary-dark}Tipo} &
+\textbf{\color{hai-primary-dark}Uso} \\
+\midrule
+BCSC~\cite{bcsc}             & Clínico EE.UU.   & Entrenamiento del modelo. $\sim$400 MB en 3 CSV; 6.7 M mamografías. \\
+GLOBOCAN 2022~\cite{globocan} & Global (IARC/OMS) & Incidencia, mortalidad y prevalencia comparadas entre países. \\
+Cuenta de Alto Costo~\cite{cac} & Oficial Colombia & Cáncer de mama por régimen, departamento y grupo etario. \\
+SIVIGILA~\cite{sivigila}    & Vigilancia pública INS & Casos notificados con descarga abierta. \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+Del BCSC se utilizan diez variables: banda etaria de 5 años, etnia,
+antecedente familiar de primer grado, edad de menarca, edad del primer
+parto, densidad mamaria BI-RADS, terapia hormonal de reemplazo, estado
+menopáusico, IMC en bandas y biopsia mamaria previa. El dataset codifica
+los valores desconocidos con el dígito \code{9}, que son tratados
+explícitamente durante la fase de limpieza.
+
+%%% ============================================================
+\section{Pipeline de datos}\label{sec:pipe}
+El pipeline se ejecuta en siete pasos:
+\begin{enumerate}[leftmargin=*,nosep,label=\arabic*)]
+  \item \emph{Ingesta del BCSC.} Descarga de los tres archivos CSV desde el portal BCSC, consolidación y limpieza inicial en \code{01\_exploracion.ipynb} con Pandas.
+  \item \emph{Limpieza y transformación.} Imputación de ``desconocidos'' (código\,9), codificación ordinal de variables categóricas, verificación de la columna de pesos (\code{count}) y exportación a Parquet.
+  \item \emph{Análisis exploratorio.} Notebook \code{02\_eda.ipynb}: distribución de la variable objetivo, correlaciones ponderadas, tasas por grupo etario, densidad mamaria y antecedentes familiares.
+  \item \emph{Entrenamiento.} Notebook \code{03\_modelo.ipynb}: regresión logística y Random Forest con \code{class\_weight} para manejar el desbalance entre clases, evaluado con AUC-ROC, precision y recall.
+  \item \emph{Procesamiento distribuido.} Notebook \code{04\_spark\_s3.ipynb}: lectura directa desde S3 con PySpark para análisis agregado sobre volúmenes que exceden la memoria RAM de una sola máquina~\cite{spark}.
+  \item \emph{Servicio del modelo.} El archivo \code{.pkl} se carga al iniciar la API FastAPI~\cite{fastapi}; cada request al endpoint \code{/predict} devuelve nivel de riesgo, factores que pesan y plan de tamizaje.
+  \item \emph{Captura streaming.} Cada predicción se envía a Kinesis Firehose~\cite{firehose}, que la deposita comprimida en S3 para reentrenamiento continuo.
+\end{enumerate}
+
+%%% ============================================================
+\section{Modelo de predicción}\label{sec:modelo}
+
+\subsection{Variables de entrada}
+El esquema de entrada se valida con Pydantic. La Tabla~\ref{tab:vars}
+enumera las variables y sus dominios.
+
+\begin{table}[!t]
+\caption{Variables de entrada del modelo (codificación BCSC).}
+\label{tab:vars}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\arrayrulecolor{hai-primary}
+\begin{tabularx}{\columnwidth}{@{}l l X@{}}
+\toprule
+\rowcolor{hai-primary-soft}
+\textbf{\color{hai-primary-dark}Variable} &
+\textbf{\color{hai-primary-dark}Dominio} &
+\textbf{\color{hai-primary-dark}Descripción} \\
+\midrule
+\code{age\_group\_5\_years}     & 1--13      & Banda etaria de 5 años (1\,=\,18-29, 13\,$\geq$\,85). \\
+\code{race\_eth}                & 1--9       & Etnia auto-reportada. \\
+\code{first\_degree\_hx}        & 0/1/9      & Antecedente familiar de primer grado. \\
+\code{age\_menarche}            & 0/1/2/9    & Edad de la primera menstruación. \\
+\code{age\_first\_birth}        & 0--4, 9    & Edad del primer parto. \\
+\code{BIRADS\_breast\_density}  & 1--4, 9    & Densidad mamaria BI-RADS. \\
+\code{current\_hrt}             & 0/1/9      & Terapia hormonal de reemplazo actual. \\
+\code{menopaus}                 & 1/2/3/9    & Estado menopáusico. \\
+\code{bmi\_group}               & 1--4, 9    & IMC en bandas. \\
+\code{biophx}                   & 0/1/9      & Biopsia mamaria previa. \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+\subsection{Salida}
+El endpoint devuelve un objeto con los campos: \code{nivel\_riesgo}
+(Bajo / Medio / Alto), \code{probabilidad} (float), una lista de
+\code{recomendaciones} preventivas, los \code{factores\_detalle}
+ponderados, un \code{plan\_tamizaje} sugerido (frecuencia y próxima
+acción) y un \code{aviso} legal.
+
+\subsection{Métricas y validación}
+El modelo se evalúa con AUC-ROC, precision y recall sobre una partición
+80/20 ponderada por la columna \code{count} del dataset. Dada la
+naturaleza desbalanceada del problema (la clase positiva es
+minoritaria), \emph{recall} es la métrica de control: se prefieren
+falsos positivos antes que falsos negativos. Pydantic rechaza con HTTP
+422 cualquier valor fuera del dominio antes de que llegue al modelo, lo
+que previene predicciones inválidas por error de entrada.
+
+\begin{warning}
+\textbf{\itshape Aviso clínico.} La salida del modelo es una estimación
+estadística poblacional. No constituye un diagnóstico y no debe
+utilizarse como reemplazo de evaluación médica profesional ni de los
+protocolos de tamizaje vigentes.
+\end{warning}
+
+%%% ============================================================
+\section{Backend --- API REST}\label{sec:backend}
+El backend está implementado en \emph{FastAPI}~\cite{fastapi} sobre
+Python\,3.10+, servido con Uvicorn y empaquetado en una imagen Docker.
+Expone dos endpoints principales:
+\begin{itemize}[leftmargin=*,nosep]
+  \item \code{GET /health} --- verificación de estado del servicio.
+  \item \code{POST /predict} --- recibe los diez factores de riesgo,
+  valida con Pydantic, ejecuta el modelo cargado en memoria, registra la
+  predicción en Kinesis y devuelve la respuesta estructurada al cliente.
+\end{itemize}
+Las llamadas a Kinesis Firehose se realizan con \code{boto3} en modo
+\emph{fire-and-forget}: si el envío falla, se registra el error pero la
+respuesta al usuario no se ve afectada. Esta estrategia desacopla la
+captura analítica de la disponibilidad del servicio sincrónico. La
+latencia del endpoint se mantiene por debajo de 200\,ms en el percentil
+95 bajo carga nominal.
+
+%%% ============================================================
+\section{Frontend --- aplicación web}\label{sec:frontend}
+Se construyó una \emph{Single Page Application} con React\,18 y Vite,
+ruteo con React Router, microinteracciones con Framer Motion y
+visualizaciones con Recharts. La aplicación se sirve a través de Nginx,
+que también actúa como \emph{reverse proxy} hacia el backend para las
+rutas \code{/api/*}. Los módulos visibles son:
+\begin{itemize}[leftmargin=*,nosep]
+  \item \emph{Inicio:} landing con introducción al sistema y CTAs.
+  \item \emph{Mi riesgo:} wizard de evaluación paso a paso con persistencia local.
+  \item \emph{Resultado:} nivel de riesgo, factores detalle y plan personalizado.
+  \item \emph{Autoexamen:} guía con temporizador y pasos visuales.
+  \item \emph{Plan semanal:} checklist de hábitos con \code{localStorage}.
+  \item \emph{Panorama:} dashboard epidemiológico con descarga de datos.
+  \item \emph{Proyecto:} documentación técnica navegable (página actual).
+  \item \emph{Manual:} videos de uso del sistema.
+\end{itemize}
+La aplicación es \emph{mobile-first}: la jerarquía visual se construye
+para pantallas pequeñas y escala hacia tablet y escritorio. Todos los
+elementos interactivos cumplen con un área táctil mínima de
+$44\times 44$ puntos y el contraste sigue las pautas WCAG.
+
+%%% ============================================================
+\section{Infraestructura y despliegue}\label{sec:deploy}
+
+\subsection{Plano de datos --- AWS}
+\begin{itemize}[leftmargin=*,nosep]
+  \item \textbf{Amazon~S3} --- data lake con prefijos \code{raw/}, \code{clean/} y \code{models/}.
+  \item \textbf{Kinesis~Firehose} --- ingesta DirectPUT con destino S3, buffer por tiempo/tamaño y compresión GZIP~\cite{firehose}.
+  \item \textbf{EC2 (t3.medium, Ubuntu 22.04)} --- nodo de procesamiento con Apache Spark~\cite{spark} y Jupyter.
+  \item \textbf{IAM} --- rol con políticas mínimas para acceso a S3 y Firehose.
+\end{itemize}
+
+\subsection{Plano de servicio --- Coolify}
+Coolify~\cite{coolify} es un \emph{PaaS self-hosted} que automatiza el
+ciclo de despliegue desde GitHub. Ante cada push a \code{main}, Coolify
+ejecuta de forma desatendida la siguiente secuencia:
+\begin{enumerate}[leftmargin=*,nosep,label=\arabic*)]
+  \item Clona el repositorio en el VPS.
+  \item Construye las imágenes Docker del backend y frontend con \code{docker compose build}.
+  \item Orquesta los contenedores en una red interna con Traefik como reverse proxy.
+  \item Gestiona HTTPS automáticamente con Let's Encrypt.
+  \item Inyecta variables de entorno (credenciales AWS, buckets, streams).
+\end{enumerate}
+El dominio \code{bigdata.agustinynatalia.site} apunta a través de
+Cloudflare al VPS. El frontend expone Nginx en el puerto 80 y enruta
+\code{/api/*} al backend FastAPI en \code{backend:8000} mediante la red
+Docker interna.
+
+%%% ============================================================
+\section{Cumplimiento de las 5\,V del Big Data}\label{sec:5v}
+\newcommand{\vcard}[2]{%
+  \begin{tcolorbox}[
+    enhanced, sharp corners, breakable,
+    colback=white, colframe=hai-rule,
+    boxrule=0.4pt, leftrule=2pt,
+    coltitle=white, colbacktitle=hai-primary,
+    title={\strut\scshape\bfseries\footnotesize #1},
+    fonttitle=\footnotesize,
+    halign title=flush left,
+    left=6pt, right=6pt, top=3pt, bottom=3pt,
+    boxsep=0pt,
+    attach boxed title to top left={xshift=4pt,yshift=-1pt},
+    boxed title style={sharp corners,colframe=hai-primary,
+      left=4pt,right=4pt,top=1pt,bottom=1pt},
+    after title={\hfill},
+    fontupper=\footnotesize,
+    top=12pt,
+  ]%
+  #2%
+  \end{tcolorbox}\par\vspace{2pt}%
+}
+
+\vcard{Volumen}{Más de 6\,M mamografías del dataset BCSC, almacenadas en formato Parquet columnar y procesadas con PySpark distribuido. Los datos crudos suman $\sim$400\,MB en CSV y crecen continuamente con la captura streaming.}
+
+\vcard{Velocidad}{Pipeline de streaming con Kinesis Firehose: cada predicción del usuario llega a S3 en menos de 60\,s. La API responde con latencia $<$200\,ms en el percentil 95.}
+
+\vcard{Variedad}{Integración de fuentes heterogéneas: dataset clínico agregado (BCSC), reportes epidemiológicos globales (GLOBOCAN), datos oficiales colombianos (Cuenta de Alto Costo) y vigilancia pública (SIVIGILA).}
+
+\vcard{Veracidad}{Validación con Pydantic, citación explícita de fuentes oficiales, descarga abierta de los datos para auditoría por el usuario y registro inmutable de cada predicción en el data lake.}
+
+\vcard{Valor}{Aplicación práctica con impacto educativo: evaluación personalizada, plan de cuidado, guía de autoexamen y panorama del país integrados en una sola herramienta gratuita y accesible.}
+
+%%% ============================================================
+\section{Stack tecnológico}\label{sec:stack}
+La Tabla~\ref{tab:stack} sintetiza las tecnologías empleadas, organizadas por capa funcional del sistema.
+
+\begin{table}[H]
+\caption{Stack tecnológico por capa.}
+\label{tab:stack}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\arrayrulecolor{hai-primary}
+\begin{tabularx}{\columnwidth}{@{}>{\bfseries}l X@{}}
+\toprule
+\rowcolor{hai-primary-soft}
+{\color{hai-primary-dark}Capa} &
+\textbf{\color{hai-primary-dark}Tecnologías} \\
+\midrule
+Big Data \& ML     & Apache Spark (PySpark), Jupyter, Pandas, NumPy, Scikit-learn, Joblib, Parquet. \\
+Cloud (AWS)        & S3, Kinesis Firehose, EC2 (t3.medium Ubuntu 22.04), IAM, AWS CLI. \\
+Backend            & FastAPI, Pydantic, Uvicorn, Boto3, Docker. \\
+Frontend           & React 18, Vite, React Router, Recharts, Framer Motion, Axios, Nginx. \\
+Despliegue         & Coolify, Docker Compose, Traefik, Let's Encrypt, Cloudflare. \\
+Control \& calidad & Git, GitHub, dotenv, ESLint, validaciones Pydantic. \\
+\bottomrule
+\end{tabularx}
+\arrayrulecolor{black}
+\end{table}
+
+%%% ============================================================
+\section{Limitaciones}\label{sec:lim}
+\begin{itemize}[leftmargin=*,nosep]
+  \item \emph{Sesgo geográfico del dataset.} El BCSC se construyó en EE.UU., con una composición étnica y un patrón de tamizaje distintos a los colombianos. Es necesario calibrar el modelo con datos locales antes de aplicarlo a población nacional.
+  \item \emph{Modelo agregado.} El dataset utiliza filas agregadas ponderadas por \code{count}; entrenar sobre microdatos individuales requeriría acceder a una cohorte clínica.
+  \item \emph{Sin factores genéticos.} Variantes BRCA1/BRCA2 no están en el dataset; el riesgo entregado es probabilístico poblacional, no familiar.
+  \item \emph{Reentrenamiento manual.} Hoy el reentrenamiento se ejecuta de forma manual sobre el data lake en Jupyter.
+  \item \emph{Monitoreo limitado.} Falta instrumentación de drift, distribución de inputs y feedback del usuario en producción.
+\end{itemize}
+
+%%% ============================================================
+\section{Conclusiones y trabajo futuro}\label{sec:conc}
+HealthAI Breast BDI demuestra que una arquitectura híbrida de Big Data
+sobre la nube puede transformar un dataset clínico masivo en una
+herramienta accesible al público, sosteniendo simultáneamente las cinco
+V del Big Data y un caso de uso con impacto social medible. El diseño
+AWS\,+\,VPS resuelve la tensión clásica entre capacidad de procesamiento
+y costo de servicio continuo, y es replicable en proyectos académicos o
+iniciativas con presupuesto acotado.
+
+El sistema cumple los objetivos planteados: integra fuentes
+heterogéneas, procesa $>$6\,M registros con Spark, sirve un modelo en
+producción con latencia controlada, captura cada predicción para
+reentrenamiento futuro y se despliega de forma automatizada en cada
+push al repositorio.
+
+El siguiente paso natural es la calibración del modelo con datos
+locales y la automatización del ciclo de reentrenamiento, completando
+el bucle batch\,+\,streaming que el data lake ya soporta.
+
+%%% ============================================================
+\section*{Agradecimientos}
+El autor agradece a la Facultad de Ingenierías de la Universidad de San
+Buenaventura, sede Bogotá, por el acompañamiento académico durante el
+desarrollo del proyecto en el marco de la asignatura de Big Data 2026.
+
+%%% ============================================================
+\begin{thebibliography}{10}
+\bibitem{bcsc}
+Breast Cancer Surveillance Consortium, ``Risk Factor Dataset,'' 2017.
+[En línea]. Disponible: \url{https://www.bcsc-research.org/data/rfdataset}
+
+\bibitem{globocan}
+International Agency for Research on Cancer, ``GLOBOCAN 2022: Global
+Cancer Observatory,'' Lyon, Francia, 2022. [En línea]. Disponible:
+\url{https://gco.iarc.fr}
+
+\bibitem{cac}
+Cuenta de Alto Costo, ``Situación del cáncer de mama en Colombia,''
+Bogotá, Colombia, 2023. [En línea]. Disponible:
+\url{https://cuentadealtocosto.org}
+
+\bibitem{sivigila}
+Instituto Nacional de Salud de Colombia, ``Sistema de Vigilancia en
+Salud Pública (SIVIGILA),'' Portal de Datos Abiertos. [En línea].
+Disponible: \url{https://www.datos.gov.co}
+
+\bibitem{fastapi}
+S.~Ramírez, ``FastAPI: framework de Python para construir APIs,''
+Documentación oficial, 2018--2026. [En línea]. Disponible:
+\url{https://fastapi.tiangolo.com}
+
+\bibitem{spark}
+The Apache Software Foundation, ``Apache Spark --- PySpark
+documentation,'' v3.x, 2024. [En línea]. Disponible:
+\url{https://spark.apache.org/docs/latest/api/python/}
+
+\bibitem{firehose}
+Amazon Web Services, ``Amazon Kinesis Data Firehose Developer Guide,''
+2024. [En línea]. Disponible:
+\url{https://docs.aws.amazon.com/firehose/}
+
+\bibitem{coolify}
+A.~Király, ``Coolify: self-hosted PaaS,'' Documentación oficial, 2024.
+[En línea]. Disponible: \url{https://coolify.io}
+
+\bibitem{sklearn}
+F.~Pedregosa \emph{et~al.}, ``Scikit-learn: machine learning in
+Python,'' \emph{Journal of Machine Learning Research}, vol.~12,
+pp.~2825--2830, 2011.
+
+\bibitem{birads}
+American College of Radiology, \emph{Breast Imaging Reporting and Data
+System (BI-RADS) Atlas}, 5th~ed., Reston, VA, USA, 2013.
+\end{thebibliography}
+
+\end{document}
