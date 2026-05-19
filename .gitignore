@@ -36,3 +36,7 @@ data/raw/*.txt
 .idea/
 .DS_Store
 Thumbs.db
+
+# Guion de la presentacion (local, no versionar)
+presentacion/guion_presentacion.tex
+presentacion/guion_presentacion.pdf

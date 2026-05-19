@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HealthAI Breast BDI · Presentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #faf6f7;
+    --bg-app: #f4eef0;
+    --card: #ffffff;
+    --text: #2d1b2e;
+    --text-soft: #5a4a5c;
+    --muted: #8b7a8e;
+    --primary: #c2185b;
+    --primary-dark: #880e4f;
+    --primary-soft: #fce4ec;
+    --primary-glow: #f8bbd0;
+    --accent: #7b5ea7;
+    --success: #4a7c59;
+    --success-soft: #dfeee4;
+    --warning: #c27803;
+    --warning-soft: #fef3c7;
+    --danger: #b42318;
+    --danger-soft: #fee4e2;
+    --border: #ede0e2;
+    --border-soft: #f5ecee;
+    --shadow: 0 12px 40px rgba(45, 27, 46, 0.1);
+    --radius: 14px;
+    --radius-lg: 20px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg-app);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 .75rem;
+    color: var(--text);
+  }
+
+  .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    padding: 3vh 5vw 7vh;
+    overflow-y: auto;
+    animation: fadeIn .35s ease-out;
+  }
+  .slide.active { display: grid; grid-template-rows: auto 1fr; }
+  .slide-body {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    gap: .85rem;
+    min-height: 0;
+    padding-bottom: 1.5rem;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .controls {
+    position: fixed; bottom: 1.25rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 1rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: .5rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 100; font-size: .85rem; color: var(--muted);
+  }
+  .ctrl-btn {
+    background: var(--primary-soft); color: var(--primary-dark);
+    border: none; border-radius: 999px;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    cursor: pointer; font-size: 1.1rem; font-weight: 600;
+    transition: all .15s;
+  }
+  .ctrl-btn:hover { background: var(--primary); color: white; }
+  .ctrl-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .ctrl-count { font-family: 'Fraunces', serif; font-weight: 600; color: var(--text); }
+
+  .progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--border-soft);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    width: 0; transition: width .35s ease-out;
+  }
+
+  .topbar {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.25rem; padding-bottom: .85rem;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .brand-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; display: grid; place-items: center;
+    flex-shrink: 0; font-size: 1.5rem;
+  }
+  .brand { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.05rem; color: var(--text); }
+  .brand-sub { font-size: .8rem; color: var(--muted); }
+  .slide-num {
+    margin-left: auto; font-size: .8rem; color: var(--muted);
+    background: var(--bg-app); padding: .3rem .75rem; border-radius: 999px;
+  }
+
+  .cover {
+    align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(135deg, var(--primary-soft) 0%, #fff 50%, var(--bg) 100%);
+  }
+  .cover-badge {
+    background: var(--primary); color: white;
+    padding: .45rem 1.1rem; border-radius: 999px;
+    font-size: .75rem; font-weight: 700; letter-spacing: .5px;
+    margin-bottom: 1.5rem;
+  }
+  .cover h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: .5rem; }
+  .cover .subtitle {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    color: var(--text-soft); max-width: 720px;
+    margin: 0 auto 3rem;
+  }
+  .cover-authors {
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    justify-content: center; align-items: center;
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2.5rem; box-shadow: var(--shadow);
+  }
+  .cover-author { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+  .cover-author-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.3rem; }
+  .cover-author.natalia .cover-author-name { color: var(--primary); }
+  .cover-author.agustin .cover-author-name { color: var(--accent); }
+  .cover-author-role { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .cover-divider { width: 1px; height: 40px; background: var(--border); }
+  .cover-meta { margin-top: 1.5rem; color: var(--muted); font-size: .9rem; }
+
+  .slide-title-block { margin-bottom: 1rem; }
+  .slide-tag {
+    display: inline-block;
+    background: var(--primary-soft); color: var(--primary-dark);
+    font-size: .72rem; font-weight: 600;
+    padding: .22rem .75rem; border-radius: 999px;
+    margin-bottom: .65rem;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .slide h2 {
+    font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+    line-height: 1.15; margin: 0;
+  }
+  .slide .lead {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: clamp(.95rem, 1.3vw, 1.1rem);
+    color: var(--text-soft); max-width: 920px;
+    margin: .5rem 0 0;
+  }
+
+  /* Layouts */
+  .two-col {
+    display: grid; gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    margin-top: .85rem;
+  }
+  .three-col {
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: .85rem;
+  }
+  .four-col {
+    display: grid; gap: .85rem;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: .85rem;
+  }
+  @media (max-width: 880px) {
+    .two-col, .three-col, .four-col { grid-template-columns: 1fr; }
+  }
+  .split {
+    display: grid; gap: 1.25rem;
+    grid-template-columns: 1.1fr 1fr;
+    margin-top: .85rem; align-items: start;
+  }
+  @media (max-width: 1000px) { .split { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 2px rgba(45, 27, 46, 0.04);
+  }
+  .card h3 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--primary-dark);
+    font-size: 1rem; margin-bottom: .35rem;
+  }
+  .card p, .card li { color: var(--text-soft); font-size: .9rem; margin: 0 0 .35rem; }
+  .card ul { padding-left: 1.1rem; margin: 0; }
+  .card.accent-card h3 { color: var(--accent); }
+  .card.accent-card { border-left: 4px solid var(--accent); }
+  .card.primary-card { border-left: 4px solid var(--primary); }
+  .card.warning-card { border-left: 4px solid var(--warning); }
+  .card.danger-card { border-left: 4px solid var(--danger); }
+
+  /* Image */
+  .screenshot {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: block; background: var(--card);
+  }
+  .screenshot-caption {
+    display: block; text-align: center;
+    color: var(--muted); font-size: .78rem;
+    margin-top: .4rem; font-style: italic;
+  }
+  .screenshot-wrap {
+    background: var(--bg-app); border-radius: var(--radius);
+    padding: .5rem; border: 1px solid var(--border-soft);
+  }
+
+  /* KPIs */
+  .kpis {
+    display: grid; gap: .85rem;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 1rem;
+  }
+  @media (max-width: 880px) { .kpis { grid-template-columns: 1fr 1fr; } }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+    display: flex; flex-direction: column; gap: .1rem;
+  }
+  .kpi-label { font-size: .68rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-value { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 600; line-height: 1.1; color: var(--primary); }
+  .kpi.accent .kpi-value { color: var(--accent); }
+  .kpi.warning .kpi-value { color: var(--warning); }
+  .kpi.danger .kpi-value { color: var(--danger); }
+  .kpi-sub { font-size: .78rem; color: var(--muted); }
+
+  /* 5 V's */
+  .vs {
+    display: grid; gap: .85rem;
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 1rem;
+  }
+  @media (max-width: 1100px) { .vs { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .vs { grid-template-columns: 1fr; } }
+  .v {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+  }
+  .v-letter {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 2rem; color: var(--primary);
+    line-height: 1; margin-bottom: .1rem;
+  }
+  .v-name { font-weight: 700; font-size: .95rem; color: var(--text); margin-bottom: .3rem; }
+  .v p { color: var(--text-soft); font-size: .82rem; margin: 0; }
+  .v.accent { border-left-color: var(--accent); }
+  .v.accent .v-letter { color: var(--accent); }
+  .v.warning { border-left-color: var(--warning); }
+  .v.warning .v-letter { color: var(--warning); }
+  .v.success { border-left-color: var(--success); }
+  .v.success .v-letter { color: var(--success); }
+  .v.danger { border-left-color: var(--danger); }
+  .v.danger .v-letter { color: var(--danger); }
+
+  /* Architecture diagram */
+  .arq {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    background: var(--bg-app);
+    padding: 1.15rem;
+    border-radius: var(--radius);
+    margin-top: .85rem;
+  }
+  @media (max-width: 880px) { .arq { grid-template-columns: 1fr 1fr; } }
+  .arq-col { display: flex; flex-direction: column; gap: .4rem; text-align: center; }
+  .arq-title {
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--primary-dark); font-size: .8rem; margin-bottom: .2rem;
+  }
+  .arq-box {
+    background: white; border: 1px solid var(--border);
+    padding: .5rem .6rem; border-radius: 8px;
+    font-size: .76rem; font-weight: 500;
+  }
+  .arq-box.primary { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+  .arq-box.accent { border-color: var(--accent); color: var(--accent); background: #f0e6f5; }
+  .arq-arrow { color: var(--muted); font-size: .9rem; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+  .chip {
+    background: var(--primary-soft); color: var(--primary-dark);
+    padding: .22rem .65rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 600;
+  }
+  .chip.accent { background: #f0e6f5; color: var(--accent); }
+  .chip.success { background: var(--success-soft); color: var(--success); }
+  .chip.warning { background: var(--warning-soft); color: var(--warning); }
+  .chip.danger { background: var(--danger-soft); color: var(--danger); }
+
+  .numbered {
+    list-style: none; padding: 0; margin: .85rem 0 0;
+    display: flex; flex-direction: column; gap: .55rem;
+  }
+  .numbered li {
+    display: flex; gap: .85rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .75rem 1.1rem;
+  }
+  .num-badge {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    font-family: 'Fraunces', serif; font-weight: 700;
+    display: grid; place-items: center;
+    flex-shrink: 0; font-size: .85rem;
+  }
+  .num-text strong { display: block; margin-bottom: .1rem; color: var(--text); font-size: .9rem; }
+  .num-text p { margin: 0; color: var(--text-soft); font-size: .83rem; }
+
+  .closing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; margin-top: 1rem;
+  }
+  @media (max-width: 880px) { .closing-grid { grid-template-columns: 1fr; } }
+  .takeaway {
+    background: linear-gradient(135deg, var(--primary-soft), #fff);
+    border: 1px solid var(--primary-glow);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+  }
+  .takeaway-num {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 2.2rem; line-height: 1;
+    color: var(--primary); margin-bottom: .3rem;
+  }
+  .takeaway h3 { color: var(--primary-dark); font-size: 1rem; margin: 0 0 .25rem; }
+  .takeaway p { color: var(--text-soft); margin: 0; font-size: .85rem; }
+
+  .help {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: .4rem .75rem;
+    font-size: .7rem; color: var(--muted);
+    box-shadow: 0 1px 2px rgba(45, 27, 46, 0.04);
+    z-index: 100;
+    opacity: .6;
+    transition: opacity .2s;
+  }
+  .help:hover { opacity: 1; }
+  .help kbd {
+    background: var(--bg-app); padding: 1px 5px;
+    border-radius: 4px; font-family: monospace;
+    font-size: .65rem; color: var(--text);
+  }
+
+  .quote {
+    background: linear-gradient(135deg, var(--primary-soft), #fff);
+    border-left: 4px solid var(--primary);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+
+  .qa-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: .75rem; margin-top: .85rem;
+  }
+  @media (max-width: 880px) { .qa-grid { grid-template-columns: 1fr; } }
+  .qa {
+    background: var(--card); border-left: 3px solid var(--accent);
+    padding: .75rem 1.1rem; border-radius: 8px;
+  }
+  .qa-q { font-weight: 600; color: var(--text); margin: 0 0 .2rem; font-size: .88rem; }
+  .qa-a { color: var(--text-soft); font-size: .8rem; margin: 0; font-style: italic; }
+
+  .timer {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: var(--bg-app); color: var(--muted);
+    padding: .2rem .6rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 500;
+    margin-left: .35rem;
+  }
+
+  .quote-block {
+    background: var(--card); border-left: 4px solid var(--warning);
+    padding: 1rem 1.25rem; border-radius: 8px;
+    margin-top: .85rem;
+  }
+  .quote-block strong { color: var(--warning); display: block; margin-bottom: .35rem; }
+  .quote-block p { margin: 0; color: var(--text-soft); font-size: .92rem; }
+
+  code {
+    background: var(--bg-app); color: var(--primary-dark);
+    padding: .08rem .38rem; border-radius: 4px;
+    font-size: .85em;
+  }
+
+  /* AI-generated hero & accent images */
+  .hero-img {
+    display: block;
+    margin: 0 auto;
+    max-width: min(78%, 720px);
+    max-height: 42vh;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    filter: saturate(1.05);
+  }
+  .cover-hero {
+    display: block;
+    margin: 0 auto 1.25rem;
+    width: clamp(300px, 36vw, 520px);
+    max-height: 38vh;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    filter: saturate(1.05) drop-shadow(0 10px 40px rgba(194, 24, 91, 0.15));
+  }
+  .accent-img {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    filter: saturate(1.05);
+  }
+  .split-with-art {
+    display: grid; gap: 1.5rem;
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+    margin-top: .85rem;
+  }
+  @media (max-width: 1000px) {
+    .split-with-art { grid-template-columns: 1fr; }
+    .hero-img { max-height: 30vh; max-width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="progress-fill" id="progress"></div></div>
+
+<div class="help">
+  <kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>F</kbd> fullscreen
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1. COVER -->
+  <section class="slide cover active">
+    <img class="cover-hero" src="img/ai/cover.png" alt="" aria-hidden="true" />
+    <div class="cover-badge">PROYECTO BIG DATA · 2026</div>
+    <h1>HealthAI Breast BDI</h1>
+    <p class="subtitle">
+      Sistema de predicción de riesgo de cáncer de mama basado en una arquitectura de Big Data sobre AWS.
+    </p>
+    <div class="cover-authors">
+      <div class="cover-author natalia">
+        <span class="cover-author-name">Natalia Moncaleano</span>
+        <span class="cover-author-role">Co-autora</span>
+      </div>
+      <div class="cover-divider"></div>
+      <div class="cover-author agustin">
+        <span class="cover-author-name">Agustín Peralta</span>
+        <span class="cover-author-role">Co-autor</span>
+      </div>
+    </div>
+    <p class="cover-meta">
+      Universidad de San Buenaventura · Ingeniería de Sistemas<br>
+      <a href="https://bigdata.agustinynatalia.site" style="color: var(--primary);">bigdata.agustinynatalia.site</a>
+    </p>
+  </section>
+
+  <!-- 2. ÍNDICE -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Qué vamos a presentar</div>
+        <div class="brand-sub">12 escenas · 40 minutos</div>
+      </div>
+      <div class="slide-num">02 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Recorrido</span>
+      <h2>Doce escenas, organizadas en cuatro bloques.</h2>
+    </div>
+
+    <div class="two-col">
+      <div class="card primary-card">
+        <h3>Bloque I · Contexto</h3>
+        <ul>
+          <li>Apertura y motivación <span class="timer">4 min</span></li>
+          <li>El problema en cifras <span class="timer">3 min</span></li>
+          <li>Marco teórico: Big Data <span class="timer">4 min</span></li>
+        </ul>
+      </div>
+      <div class="card accent-card">
+        <h3>Bloque II · Arquitectura y demo</h3>
+        <ul>
+          <li>Arquitectura general <span class="timer">4 min</span></li>
+          <li>Demo: <em>Mi espacio</em> <span class="timer">3 min</span></li>
+          <li>Demo: <em>Mi riesgo</em> y resultado <span class="timer">4 min</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card warning-card">
+        <h3>Bloque III · Profundidad técnica</h3>
+        <ul>
+          <li>Dataset y modelo <span class="timer">5 min</span></li>
+          <li>AWS en profundidad <span class="timer">4 min</span></li>
+          <li>Demo: <em>Autoexamen</em>, <em>Plan</em>, <em>Panorama</em> <span class="timer">4 min</span></li>
+        </ul>
+      </div>
+      <div class="card danger-card">
+        <h3>Bloque IV · Decisiones y cierre</h3>
+        <ul>
+          <li>Despliegue híbrido: la historia <span class="timer">3 min</span></li>
+          <li>Limitaciones y ética <span class="timer">2 min</span></li>
+          <li>Cierre y preguntas <span class="timer">2 min</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. PROBLEMA EN CIFRAS -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">El problema en cifras</div>
+        <div class="brand-sub">Colombia · datos GLOBOCAN 2022 + Cuenta de Alto Costo</div>
+      </div>
+      <div class="slide-num">03 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 2</span>
+      <h2>Primera causa de muerte por cáncer en mujeres en Colombia.</h2>
+      <p class="lead">12 mujeres mueren por día. Y la sobrevida a 5 años depende casi totalmente del momento del diagnóstico.</p>
+    </div>
+
+    <div class="split-with-art" style="grid-template-columns: 1fr 1.5fr;">
+      <img class="accent-img" src="img/ai/problema.png" alt="" aria-hidden="true" style="max-height: 42vh;" />
+      <div>
+        <div class="kpis" style="grid-template-columns: 1fr 1fr; margin-top: 0;">
+      <div class="kpi">
+        <span class="kpi-label">Nuevos casos al año</span>
+        <span class="kpi-value">15.509</span>
+        <span class="kpi-sub">mujeres diagnosticadas</span>
+      </div>
+      <div class="kpi danger">
+        <span class="kpi-label">Muertes al año</span>
+        <span class="kpi-value">4.411</span>
+        <span class="kpi-sub">≈ 12 por día</span>
+      </div>
+      <div class="kpi accent">
+        <span class="kpi-label">Edad media de diagnóstico</span>
+        <span class="kpi-value">56 años</span>
+        <span class="kpi-sub">20% antes de los 50</span>
+      </div>
+      <div class="kpi warning">
+        <span class="kpi-label">Tasa de incidencia</span>
+        <span class="kpi-value">47.3</span>
+        <span class="kpi-sub">por 100.000 mujeres</span>
+      </div>
+    </div>
+
+        <div class="quote" style="margin-top: 1rem;">
+          Si se detecta in situ, la sobrevida a 5 años es del 99 %. Si se detecta metastásico, baja al 28 %. <strong>Detectar a tiempo no es una mejora marginal.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. MARCO TEÓRICO: 5 V's -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Marco teórico</div>
+        <div class="brand-sub">Las 5 V's de Big Data</div>
+      </div>
+      <div class="slide-num">04 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 3</span>
+      <h2>Big Data no es "muchos datos". Es la combinación de cinco características.</h2>
+      <p class="lead">Cuando los datos cumplen estas condiciones, las herramientas tradicionales — una base relacional, un Excel, un servidor único — dejan de servir.</p>
+    </div>
+
+    <img class="hero-img" src="img/ai/5vs.png" alt="" aria-hidden="true" />
+
+    <div class="vs">
+      <div class="v">
+        <div class="v-letter">V</div>
+        <div class="v-name">Volumen</div>
+        <p><strong>+6M de mamografías</strong>. Pasa lo que entra en RAM → Parquet + PySpark.</p>
+      </div>
+      <div class="v accent">
+        <div class="v-letter">V</div>
+        <div class="v-name">Velocidad</div>
+        <p>Batch para entrenar + <strong>streaming</strong> con Kinesis para capturar.</p>
+      </div>
+      <div class="v warning">
+        <div class="v-letter">V</div>
+        <div class="v-name">Variedad</div>
+        <p>4 fuentes heterogéneas con esquemas distintos: BCSC, CAC, SIVIGILA, GLOBOCAN.</p>
+      </div>
+      <div class="v success">
+        <div class="v-letter">V</div>
+        <div class="v-name">Veracidad</div>
+        <p>Validación con Pydantic, cita explícita de fuentes, datos descargables.</p>
+      </div>
+      <div class="v danger">
+        <div class="v-letter">V</div>
+        <div class="v-name">Valor</div>
+        <p>La quinta es la más importante: si no termina en algo útil, no sirvió.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ARQUITECTURA -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Arquitectura general</div>
+        <div class="brand-sub">Lambda · batch + streaming sobre data lake</div>
+      </div>
+      <div class="slide-num">05 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 4</span>
+      <h2>Cuatro bloques. Captura, ingesta streaming, procesamiento y servicio del modelo.</h2>
+    </div>
+
+    <div class="arq">
+      <div class="arq-col">
+        <div class="arq-title">Captura</div>
+        <div class="arq-box">React 18 + Vite</div>
+        <div class="arq-arrow">↓</div>
+        <div class="arq-box">FastAPI (Pydantic)</div>
+      </div>
+      <div class="arq-col">
+        <div class="arq-title">Ingesta streaming</div>
+        <div class="arq-box primary">AWS Kinesis Firehose</div>
+        <div class="arq-arrow">↓</div>
+        <div class="arq-box primary">S3 Data Lake (GZIP)</div>
+      </div>
+      <div class="arq-col">
+        <div class="arq-title">Procesamiento</div>
+        <div class="arq-box accent">EC2 + Apache Spark</div>
+        <div class="arq-arrow">↓</div>
+        <div class="arq-box accent">Jupyter · PySpark</div>
+      </div>
+      <div class="arq-col">
+        <div class="arq-title">Modelo y servicio</div>
+        <div class="arq-box">modelo_riesgo.pkl (S3)</div>
+        <div class="arq-arrow">↓</div>
+        <div class="arq-box">Endpoint /predict</div>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <strong>Patrón Lambda</strong>
+      <p>Capa lenta para procesar históricos (batch en Spark) + capa rápida para capturar datos recientes (streaming en Kinesis). El data lake en S3 es el punto de unión.</p>
+    </div>
+  </section>
+
+  <!-- 6. MI ESPACIO -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Demo · Mi espacio</div>
+        <div class="brand-sub">Dashboard personal · entrada al sistema</div>
+      </div>
+      <div class="slide-num">06 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 5 · Demo I</span>
+      <h2>Saludo dinámico, persistencia local, cuatro entradas al sistema.</h2>
+    </div>
+
+    <div class="split">
+      <div class="screenshot-wrap">
+        <img class="screenshot" src="img/inicio.png" alt="Pantalla Mi espacio" />
+        <span class="screenshot-caption">bigdata.agustinynatalia.site · Mi espacio</span>
+      </div>
+      <div>
+        <div class="card primary-card">
+          <h3>Decisión: nada al servidor</h3>
+          <p>Toda la persistencia está en <code>localStorage</code> del navegador. La información de salud es sensible y no la necesitamos para que la app funcione.</p>
+        </div>
+        <div class="card" style="margin-top: .85rem;">
+          <h3>Cuatro entradas</h3>
+          <ul>
+            <li><strong>Mi riesgo</strong> — wizard de evaluación</li>
+            <li><strong>Plan semanal</strong> — hábitos preventivos</li>
+            <li><strong>Autoexamen</strong> — guía con timer</li>
+            <li><strong>Panorama</strong> — datos epidemiológicos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. MI RIESGO (wizard) -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Demo · Mi riesgo</div>
+        <div class="brand-sub">Wizard de evaluación · 10 preguntas → API</div>
+      </div>
+      <div class="slide-num">07 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 6 · Demo II</span>
+      <h2>Una pregunta a la vez. Las 10 variables del dataset BCSC, sin trampa.</h2>
+      <p class="lead">Si capturáramos una pregunta que el modelo no usa, sería deshonesto. Si nos faltara una variable que el modelo necesita, sería inválido.</p>
+    </div>
+
+    <div class="split">
+      <div class="screenshot-wrap">
+        <img class="screenshot" src="img/evaluacion.png" alt="Wizard de evaluación" />
+        <span class="screenshot-caption">Pregunta 1 de 10 · barra de progreso · selección con feedback</span>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Las 10 variables</h3>
+          <div class="chips">
+            <span class="chip">edad</span>
+            <span class="chip">etnia</span>
+            <span class="chip">antecedentes familiares</span>
+            <span class="chip">menarca</span>
+            <span class="chip">primer parto</span>
+            <span class="chip">paridad</span>
+            <span class="chip">densidad BI-RADS</span>
+            <span class="chip">terapia hormonal</span>
+            <span class="chip">menopausia</span>
+            <span class="chip">BMI</span>
+            <span class="chip">biopsia previa</span>
+          </div>
+        </div>
+        <div class="card accent-card" style="margin-top: .85rem;">
+          <h3>Pantalla de cálculo</h3>
+          <p>Mensajes educativos que rotan: <em>"Consultando patrones de más de 6 millones de mamografías..."</em>, <em>"Pensando en los factores que más pesan en tu caso..."</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. RESULTADO -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Demo · Pantalla de resultado</div>
+        <div class="brand-sub">Tres elementos: gauge · interpretación · factores</div>
+      </div>
+      <div class="slide-num">08 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 6 · cont.</span>
+      <h2>No es caja negra. La usuaria entiende por qué.</h2>
+    </div>
+
+    <div class="three-col">
+      <div class="card primary-card">
+        <h3>1. Gauge circular</h3>
+        <p>Medidor con la probabilidad y el nivel: <strong>Bajo · Medio · Alto</strong>. Color que cambia según el nivel.</p>
+      </div>
+      <div class="card accent-card">
+        <h3>2. Interpretación</h3>
+        <p>Texto en lenguaje natural: qué significa ese nivel para esta persona en particular.</p>
+      </div>
+      <div class="card warning-card">
+        <h3>3. Factores expandibles</h3>
+        <p>Cada factor explica cómo influyó. <em>"Tu edad (50-54) aumenta moderadamente el riesgo..."</em></p>
+      </div>
+    </div>
+
+    <div class="quote-block" style="border-left-color: var(--primary);">
+      <strong style="color: var(--primary);">En este mismo instante</strong>
+      <p>Mientras vemos esta pantalla, la predicción ya viajó por Kinesis y está en S3 bajo <code>raw/predictions/2026/05/18/</code>. La próxima vez que reentrenemos, va a estar disponible.</p>
+    </div>
+  </section>
+
+  <!-- 9. DATASET BCSC -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">El dataset · BCSC</div>
+        <div class="brand-sub">Breast Cancer Surveillance Consortium · EE.UU.</div>
+      </div>
+      <div class="slide-num">09 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 7</span>
+      <h2>6.7 millones de mamografías agregadas en 1.5M de filas.</h2>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>Formato y agregación</h3>
+        <p>Cada fila no es una mamografía individual — es una combinación de factores con una columna <code>count</code>. <strong>Las operaciones tienen que ser ponderadas</strong>: una fila con count=5000 pesa 5000 veces más que una con count=1.</p>
+      </div>
+      <div class="card primary-card">
+        <h3>Reto: imputación del código 9</h3>
+        <p>El dataset usa <code>9</code> para "valor desconocido". Si lo dejamos, el modelo aprende que "9" es real y rompe. Solución: imputar por la moda ponderada para ordinales; dejar "desconocido" como clase separada para binarias.</p>
+      </div>
+    </div>
+
+    <div class="numbered">
+      <li>
+        <div class="num-badge">1</div>
+        <div class="num-text">
+          <strong><code>01_exploracion.ipynb</code> — Consolidación con Pandas</strong>
+          <p>3 CSV originales → 1 DataFrame consolidado → imputación → export a Parquet (columnar comprimido).</p>
+        </div>
+      </li>
+      <li>
+        <div class="num-badge">2</div>
+        <div class="num-text">
+          <strong><code>02_eda.ipynb</code> — Hallazgos clave del análisis</strong>
+          <p>La incidencia crece fuerte después de los 50. Densidad BI-RADS d casi duplica el riesgo vs BI-RADS a. Solo 5-10% de los casos tiene historial familiar directo.</p>
+        </div>
+      </li>
+    </div>
+  </section>
+
+  <!-- 10. MODELO Y MÉTRICAS -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Modelo y métricas</div>
+        <div class="brand-sub">Random Forest balanceado · evaluado con AUC-ROC</div>
+      </div>
+      <div class="slide-num">10 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 7 · cont.</span>
+      <h2>Accuracy sola engaña. En clasificación médica el recall importa más.</h2>
+      <p class="lead">Si el 95% de las mamografías son negativas, un modelo que siempre dice "negativo" tiene 95% de accuracy y es inútil.</p>
+    </div>
+
+    <div class="split-with-art">
+      <img class="accent-img" src="img/ai/modelo.png" alt="" aria-hidden="true" />
+      <div>
+        <div class="three-col" style="grid-template-columns: 1fr; gap: .65rem; margin-top: 0;">
+          <div class="card">
+            <h3>AUC-ROC</h3>
+            <p>Mide la capacidad de separar las clases independientemente del umbral elegido. La métrica reina en clasificación desbalanceada.</p>
+          </div>
+          <div class="card accent-card">
+            <h3>Precision</h3>
+            <p>De los que predijo positivos, cuántos lo eran. Importa para evitar mandar gente a controles innecesarios.</p>
+          </div>
+          <div class="card warning-card">
+            <h3>Recall</h3>
+            <p>De los positivos reales, cuántos detectó. <strong>Lo que más importa en salud</strong>: preferible un falso positivo que un falso negativo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="numbered">
+      <li>
+        <div class="num-badge">3</div>
+        <div class="num-text">
+          <strong><code>03_modelo.ipynb</code> — Entrenamiento</strong>
+          <p>Comparamos regresión logística vs random forest con <code>class_weight=balanced</code>. RF gana en interacciones no lineales. Ajustamos el umbral para favorecer recall.</p>
+        </div>
+      </li>
+      <li>
+        <div class="num-badge">4</div>
+        <div class="num-text">
+          <strong><code>04_spark_s3.ipynb</code> — Distribuido</strong>
+          <p>PySpark sobre S3 directo. Si mañana el dataset crece a 50M de filas, el código no cambia: escalamos la máquina.</p>
+        </div>
+      </li>
+    </div>
+  </section>
+
+  <!-- 11. AWS DETALLE -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">AWS en profundidad</div>
+        <div class="brand-sub">S3 · Kinesis Firehose · EC2 · IAM</div>
+      </div>
+      <div class="slide-num">11 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 8</span>
+      <h2>Tres servicios bien elegidos. Costo bajo porque solo pagamos lo que usamos.</h2>
+    </div>
+
+    <div class="four-col">
+      <div class="card primary-card">
+        <h3>S3 · data lake</h3>
+        <p><strong>3 prefijos:</strong> <code>raw/</code> (datos crudos), <code>clean/</code> (Parquet listo), <code>models/</code> (.pkl).</p>
+        <p>Convención estándar — trazabilidad total.</p>
+      </div>
+      <div class="card accent-card">
+        <h3>Kinesis Firehose</h3>
+        <p>Stream gestionado. Bufferiza hasta 5 MB o 60 s. Comprime en GZIP y particiona por fecha automáticamente.</p>
+        <p><strong>Near real-time:</strong> &lt; 1 min al data lake.</p>
+      </div>
+      <div class="card warning-card">
+        <h3>EC2 + Spark</h3>
+        <p>t3.medium · Ubuntu 22.04. <strong>Apagada la mayor parte del tiempo</strong> — solo se prende para procesar (horas por semana).</p>
+        <p>Jupyter por SSH tunneling.</p>
+      </div>
+      <div class="card danger-card">
+        <h3>IAM · seguridad</h3>
+        <p>Políticas mínimas por servicio. La EC2 solo lee el bucket. El backend solo escribe al stream.</p>
+        <p>Si una credencial se filtra, daño contenido.</p>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <strong>Detalle de diseño · streaming no bloqueante</strong>
+      <p>El backend hace el <code>PutRecord</code> a Kinesis <em>después</em> de devolver la respuesta al usuario, en una tarea async. Si Kinesis tuviera latencia, el usuario no lo nota.</p>
+    </div>
+  </section>
+
+  <!-- 12. AUTOEXAMEN + PLAN -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Demo · Autoexamen + Plan semanal</div>
+        <div class="brand-sub">Educación + hábitos sostenidos</div>
+      </div>
+      <div class="slide-num">12 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 9 · Demo III</span>
+      <h2>Lo que las guías estáticas no logran: convertir una acción puntual en un hábito mensual.</h2>
+    </div>
+
+    <div class="two-col">
+      <div class="screenshot-wrap">
+        <img class="screenshot" src="img/autoexamen.png" alt="Autoexamen" />
+        <span class="screenshot-caption">6 pasos guiados + temporizador de 5 minutos</span>
+      </div>
+      <div class="screenshot-wrap">
+        <img class="screenshot" src="img/plan.png" alt="Plan semanal" />
+        <span class="screenshot-caption">8 hábitos basados en evidencia (OMS, ACS) · reinicia cada lunes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. PANORAMA -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Demo · Panorama</div>
+        <div class="brand-sub">Dashboard epidemiológico · Colombia</div>
+      </div>
+      <div class="slide-num">13 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 9 · cont.</span>
+      <h2>KPIs del país + datos auditables descargables.</h2>
+      <p class="lead">El 52 % de los casos se diagnostican en estadio temprano. El 12 % ya metastásico — ahí es donde la sobrevida cae del 90 % al 28 %.</p>
+    </div>
+
+    <div class="split">
+      <div class="screenshot-wrap">
+        <img class="screenshot" src="img/dashboard.png" alt="Dashboard Panorama" />
+        <span class="screenshot-caption">15.509 casos · 4.411 muertes · 56 años edad media</span>
+      </div>
+      <div>
+        <div class="card primary-card">
+          <h3>Datos auditables</h3>
+          <p>Botón para descargar el dataset completo en CSV o JSON con citación explícita de cada fuente. Cualquiera puede verificar.</p>
+          <div class="chips">
+            <span class="chip">GLOBOCAN 2022</span>
+            <span class="chip">Cuenta de Alto Costo</span>
+            <span class="chip">SIVIGILA</span>
+            <span class="chip accent">Recharts</span>
+          </div>
+        </div>
+        <div class="card" style="margin-top: .85rem;">
+          <h3>Visualizaciones</h3>
+          <ul>
+            <li>Evolución anual 2015 → 2024</li>
+            <li>Distribución por departamento</li>
+            <li>Grupos etarios y régimen de salud</li>
+            <li>Estadio al diagnóstico + sobrevida 5 años</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. LA HISTORIA DEL FAIL -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Despliegue híbrido · la historia</div>
+        <div class="brand-sub">Lo que aprendimos cuando el plan original no funcionó</div>
+      </div>
+      <div class="slide-num">14 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 10</span>
+      <h2>El plan original era todo en AWS. Lo intentamos. No funcionó.</h2>
+      <p class="lead">La EC2 dimensionada para Spark no soportó la carga combinada. Escalar a t3.large permanente (~70 USD/mes) excedía el presupuesto.</p>
+    </div>
+
+    <div class="split-with-art" style="grid-template-columns: 1fr 1.4fr;">
+      <img class="accent-img" src="img/ai/despliegue.png" alt="" aria-hidden="true" style="max-height: 40vh;" />
+      <div class="two-col" style="margin-top: 0;">
+      <div class="card primary-card">
+        <h3>Plano de datos · sigue en AWS</h3>
+        <ul>
+          <li><strong>S3</strong> — data lake</li>
+          <li><strong>Kinesis Firehose</strong> — ingesta streaming</li>
+          <li><strong>EC2 + Spark</strong> — solo se prende para procesar</li>
+        </ul>
+      </div>
+      <div class="card accent-card">
+        <h3>Plano de servicio web · VPS + Coolify</h3>
+        <ul>
+          <li><strong>Coolify</strong> — PaaS self-hosted (Heroku-like)</li>
+          <li><strong>Push a main</strong> → build Docker → deploy automático</li>
+          <li><strong>Traefik + Let's Encrypt</strong> → HTTPS automático</li>
+          <li><strong>Cloudflare</strong> → DNS y CDN</li>
+        </ul>
+      </div>
+      </div>
+    </div>
+
+    <div class="quote">
+      El cloud no es todo o nada. Usar el mejor servicio para cada carga — AWS para datos, VPS para servir HTML — es el patrón que se usa en startups y proyectos reales.
+    </div>
+  </section>
+
+  <!-- 15. LIMITACIONES Y ÉTICA -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Limitaciones, ética y lo que NO hace</div>
+        <div class="brand-sub">Honestidad sobre los límites del sistema</div>
+      </div>
+      <div class="slide-num">15 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 11</span>
+      <h2>Hablar de los límites es tan importante como hablar de las virtudes — sobre todo en salud.</h2>
+    </div>
+
+    <div class="two-col">
+      <div class="card danger-card">
+        <h3>No es diagnóstico médico</h3>
+        <p>Es herramienta <strong>educativa y preventiva</strong>. Visible en cada pantalla. Resultado de "riesgo alto" → recomienda agendar control, no dice "tenés cáncer".</p>
+      </div>
+      <div class="card warning-card">
+        <h3>Sesgo del dataset</h3>
+        <p>BCSC = población EE.UU. Las distribuciones de etnia, acceso a salud y patrones de tamizaje pueden no reflejar a Colombia. Es un <strong>sesgo conocido</strong>.</p>
+      </div>
+      <div class="card accent-card">
+        <h3>Sin datos personales</h3>
+        <p>Respuestas en localStorage. Al stream solo viajan factores agregados — sin nombre, sin email. Principio de <strong>minimización de datos</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>No certificado</h3>
+        <p>Para uso clínico requeriría INVIMA o FDA. <strong>Fuera del alcance académico</strong>, pero honesto reconocerlo.</p>
+      </div>
+    </div>
+
+    <div class="quote-block" style="border-left-color: var(--primary);">
+      <strong style="color: var(--primary);">Reentrenamiento manual</strong>
+      <p>Por ahora prendemos la EC2 y corremos el notebook. Production-grade necesitaría pipeline automático con validación, A/B testing y monitoreo de drift. Está en el roadmap, no implementado.</p>
+    </div>
+  </section>
+
+  <!-- 16. CIERRE + Q&A -->
+  <section class="slide">
+    <div class="topbar">
+      <div class="brand-icon">✿</div>
+      <div>
+        <div class="brand">Aprendizajes · roadmap · preguntas</div>
+        <div class="brand-sub">Tres ideas para llevarse</div>
+      </div>
+      <div class="slide-num">16 / 16</div>
+    </div>
+
+    <div class="slide-title-block">
+      <span class="slide-tag">Escena 12 · Cierre</span>
+      <h2>Una app completa, en producción, que cumple las 5 V y devuelve algo útil.</h2>
+    </div>
+
+    <div class="closing-grid">
+      <div class="takeaway">
+        <div class="takeaway-num">01</div>
+        <h3>Big Data es la suma de las V's</h3>
+        <p>Volumen, velocidad, variedad, veracidad y valor. Si falta alguna, no es Big Data — es otra cosa.</p>
+      </div>
+      <div class="takeaway">
+        <div class="takeaway-num">02</div>
+        <h3>El cloud no es todo o nada</h3>
+        <p>Híbrido: AWS donde brilla, VPS donde es más barato. La decisión que más aplicaremos en la vida profesional.</p>
+      </div>
+      <div class="takeaway">
+        <div class="takeaway-num">03</div>
+        <h3>La técnica vale por lo que devuelve</h3>
+        <p>Toda la infra no sirve si termina en una pantalla confusa. Invertimos casi tanto en UX como en backend.</p>
+      </div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="qa">
+        <p class="qa-q">¿Por qué no una red neuronal?</p>
+        <p class="qa-a">Por interpretabilidad y porque el dato es tabular agregado, no imágenes.</p>
+      </div>
+      <div class="qa">
+        <p class="qa-q">¿Cómo manejaron datos personales?</p>
+        <p class="qa-a">Sin datos identificables. Respuestas en localStorage; al stream solo factores agregados.</p>
+      </div>
+      <div class="qa">
+        <p class="qa-q">¿Qué pasa si AWS cae?</p>
+        <p class="qa-a">La app sigue funcionando en el VPS. Solo se interrumpe la captura streaming.</p>
+      </div>
+      <div class="qa">
+        <p class="qa-q">¿Cuánto cuesta correr esto al mes?</p>
+        <p class="qa-a">VPS ~5 USD/mes, dominio ~12 USD/año, AWS en free tier. Total: 10-15 USD/mes.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="prev" aria-label="Anterior">‹</button>
+  <span class="ctrl-count"><span id="curr">1</span> / <span id="total">16</span></span>
+  <button class="ctrl-btn" id="next" aria-label="Siguiente">›</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+  document.getElementById('total').textContent = total;
+
+  // Wrap content after the topbar in .slide-body so it can be vertically centered
+  slides.forEach(slide => {
+    if (slide.classList.contains('cover')) return;
+    const topbar = slide.querySelector('.topbar');
+    if (!topbar) return;
+    const body = document.createElement('div');
+    body.className = 'slide-body';
+    let next = topbar.nextElementSibling;
+    while (next) {
+      const after = next.nextElementSibling;
+      body.appendChild(next);
+      next = after;
+    }
+    topbar.after(body);
+  });
+
+  function go(n) {
+    idx = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    document.getElementById('curr').textContent = idx + 1;
+    document.getElementById('progress').style.width = `${((idx + 1) / total) * 100}%`;
+    document.getElementById('prev').disabled = idx === 0;
+    document.getElementById('next').disabled = idx === total - 1;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(idx - 1));
+  document.getElementById('next').addEventListener('click', () => go(idx + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { go(idx + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(idx - 1); e.preventDefault(); }
+    else if (e.key === 'Home') { go(0); }
+    else if (e.key === 'End') { go(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+  });
+
+  const urlSlide = new URLSearchParams(location.search).get('slide');
+  go(urlSlide ? Math.max(0, parseInt(urlSlide, 10) - 1) : 0);
+</script>
+
+</body>
+</html>
