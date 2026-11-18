@@ -1,0 +1,17 @@
+# Despliegue en Coolify (agustinynatalia.site), sin AWS: el backend no manda a Kinesis si no hay credenciales.
+# El dominio se asigna al servicio frontend, que proxea /api/* al backend.
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      - backend
